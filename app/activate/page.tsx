@@ -1,51 +1,58 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { signIn } from "next-auth/react"
+import { signIn } from 'next-auth/react'
 
 export default function ActivatePage() {
   const router = useRouter()
-  const token = useSearchParams()?.get("token") ?? ""
+  const searchParams = useSearchParams()
 
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [token, setToken] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const paramToken = searchParams.get('token')
+    if (paramToken) setToken(paramToken)
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match")
+      toast.error('Passwords do not match')
       return
     }
 
     setLoading(true)
-    const res = await fetch("/api/users/activate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+
+    const res = await fetch('/api/users/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, password }),
     })
 
     if (res.ok) {
       const { email } = await res.json()
 
-      // Auto-login after activation
-      const loginRes = await signIn("credentials", {
+      const loginRes = await signIn('credentials', {
         redirect: false,
         email,
         password,
       })
 
       if (loginRes?.ok) {
-        toast.success("Account activated successfully!")
-        router.push("/dashboard")
+        toast.success('Account activated successfully!')
+        router.push('/dashboard')
       } else {
-        toast.error("Account activated but login failed. Please log in manually.")
+        toast.error('Activated, but login failed. Try logging in manually.')
       }
     } else {
       const data = await res.json()
-      toast.error(data.error || "Activation failed")
+      toast.error(data.error || 'Activation failed')
     }
 
     setLoading(false)
@@ -74,9 +81,9 @@ export default function ActivatePage() {
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded"
-          disabled={loading}
+          disabled={loading || !token}
         >
-          {loading ? "Activating..." : "Activate"}
+          {loading ? 'Activating...' : 'Activate'}
         </button>
       </form>
     </div>
