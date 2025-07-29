@@ -1,17 +1,13 @@
 // app/api/cells/[sectorId]/route.ts
 
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-interface Context {
-  params: {
-    sectorId: string
-  }
-}
-
-export async function GET(request: NextRequest, context: Context) {
-  const { sectorId } = context.params
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ sectorId: string }> }
+): Promise<NextResponse> {
+  const { sectorId } = await params
 
   const parsedId = parseInt(sectorId, 10)
   if (isNaN(parsedId)) {
@@ -23,10 +19,9 @@ export async function GET(request: NextRequest, context: Context) {
       where: { sectorId: parsedId },
       orderBy: { name: 'asc' },
     })
-
     return NextResponse.json(cells)
-  } catch (error) {
-    console.error('GET /api/cells/[sectorId] error:', error)
+  } catch (err) {
+    console.error(err)
     return NextResponse.json({ error: 'Failed to load cells.' }, { status: 500 })
   }
 }
