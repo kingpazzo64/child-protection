@@ -1,0 +1,31 @@
+// app/api/users/[id]/resend/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
+import { getToken } from 'next-auth/jwt'
+import { nanoid } from 'nanoid'
+import { sendInviteEmail } from '@/lib/mailer'
+
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  if (!token || token.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+
+  const id = parseInt(params.id)
+  const user = await prisma.user.findUnique({ where: { id } })
+
+  if (!user || user.password) {
+    return NextResponse.json({ error: 'User not found or already activated' }, { status: 400 })
+  }
+
+  const newToken = nanoid(32)
+
+  await prisma.user.update({
+    where: { id },
+    data: { activationToken: newToken },
+  })
+
+  await sendInviteEmail(user.email, newToken)
+
+  return NextResponse.json({ success: true })
+}

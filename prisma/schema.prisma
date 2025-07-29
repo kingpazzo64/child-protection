@@ -1,0 +1,115 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql" // Change to "postgresql" if using PostgreSQL
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// --- Prisma schema (schema.prisma) ---
+// Updated: Location models separated
+
+// Run: npx prisma migrate dev --name init
+
+model User {
+  id              Int         @id @default(autoincrement())
+  name            String
+  phone           String
+  email           String      @unique
+  idNumber        String      @db.Char(16)
+  role            Role
+  password        String?
+  emailVerified   Boolean     @default(false)
+  activationToken String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  disabled Boolean @default(false)
+  directories     Directory[] // back-reference to created directories
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  ENUMERATOR
+}
+
+enum Category {
+  GOVERNMENT
+  NON_GOVERNMENTAL
+  COMMUNITY_BASED
+}
+
+model ServiceType {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  directories Directory[]
+}
+
+model Directory {
+  id                  Int       @id @default(autoincrement())
+  nameOfOrganization  String
+  category            String
+  email               String
+  phone               String
+  website             String?
+  paid                Boolean   @default(false)
+  amount              Float?
+  estimatedAttendance Int
+  serviceType         ServiceType @relation(fields: [serviceTypeId], references: [id])
+  serviceTypeId       Int
+  district            District    @relation(fields: [districtId], references: [id])
+  districtId          Int
+  sector              Sector      @relation(fields: [sectorId], references: [id])
+  sectorId            Int
+  cell                Cell        @relation(fields: [cellId], references: [id])
+  cellId              Int
+  village             Village     @relation(fields: [villageId], references: [id])
+  villageId           Int
+  createdBy           User        @relation(fields: [createdById], references: [id])
+  createdById         Int
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  lat                 Float
+  long                Float
+  otherServices       String?
+}
+
+
+model District {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  sectors     Sector[]
+  directories Directory[]
+}
+
+model Sector {
+  id          Int         @id @default(autoincrement())
+  name        String
+  district    District    @relation(fields: [districtId], references: [id])
+  districtId  Int
+  cells       Cell[]
+  directories Directory[]
+}
+
+model Cell {
+  id          Int         @id @default(autoincrement())
+  name        String
+  sector      Sector      @relation(fields: [sectorId], references: [id])
+  sectorId    Int
+  villages    Village[]
+  directories Directory[]
+}
+
+model Village {
+  id          Int         @id @default(autoincrement())
+  name        String
+  cell        Cell        @relation(fields: [cellId], references: [id])
+  cellId      Int
+  directories Directory[]
+}
