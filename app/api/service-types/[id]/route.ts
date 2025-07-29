@@ -11,11 +11,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await prisma.serviceType.delete({ where: { id: Number(params.id) } })
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  const { id } = await params
+
+   try {
+    await prisma.serviceType.delete({ where: { id: Number(id) } })
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error(err)
