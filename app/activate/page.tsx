@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from 'next/dynamic'
 
 const ActivateClient = dynamic(() => import('./ActivateClient'), { ssr: false })
