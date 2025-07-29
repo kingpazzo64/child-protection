@@ -3,11 +3,13 @@ import prisma from '@/lib/prisma'
 import { getToken } from 'next-auth/jwt'
 
 // GET /api/users/[id]
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id)
-
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  const { id } = await params
   const user = await prisma.user.findUnique({
-    where: { id },
+    where: { id:Number(id) },
     select: {
       id: true,
       name: true,
@@ -27,19 +29,21 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PATCH /api/users/[id]
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
   if (!token || token.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
-
-  const id = parseInt(params.id)
+  const { id } = await params
   const body = await req.json()
 
   try {
     const updated = await prisma.user.update({
-      where: { id },
+      where: { id:Number(id) },
       data: {
         name: body.name,
         email: body.email,
@@ -56,18 +60,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // POST /api/users/[id]
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
   if (!token || token.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
-
-  const id = parseInt(params.id)
+  const { id } = await params
 
   try {
     const disabledUser = await prisma.user.update({
-      where: { id },
+      where: { id:Number(id) },
       data: { disabled: true },
     })
 
