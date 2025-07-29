@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getToken } from 'next-auth/jwt'
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   
   if (!token) {
@@ -33,8 +33,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const lat = parseFloat(latStr)
     const long = parseFloat(longStr)
 
+    const { id } = await params
+
     const directory = await prisma.directory.update({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       data: {
         serviceTypeId: Number(serviceTypeId),
         nameOfOrganization,
