@@ -4,6 +4,7 @@ import { Globe, Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
+import Image from "next/image";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -88,7 +89,13 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <img src="/lovable-uploads/68399270-7bb1-4bf1-940f-5bd85efe34c3.png" alt="NCDA Logo" className="h-16" />
+            <Image 
+              src="/logo.png" 
+              alt="NCDA Logo" 
+              className="h-16" 
+              width={216}
+              height={64}
+            />
           </div>
           
           {/* Desktop Navigation */}

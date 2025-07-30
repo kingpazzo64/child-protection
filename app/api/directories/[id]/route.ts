@@ -14,6 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const {
       serviceTypeId,
       nameOfOrganization,
+      description,
       category,
       districtId,
       sectorId,
@@ -40,6 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       data: {
         serviceTypeId: Number(serviceTypeId),
         nameOfOrganization,
+        description,
         category,
         districtId: Number(districtId),
         sectorId: Number(sectorId),

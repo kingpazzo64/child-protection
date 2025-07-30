@@ -210,6 +210,7 @@ export default function DirectoryPage() {
                   id: selected.id,
                   serviceTypeId: selected.serviceTypeId,
                   nameOfOrganization: selected.nameOfOrganization,
+                  description: selected.description,
                   category: selected.category,
                   districtId: selected.districtId,
                   sectorId: selected.sectorId,

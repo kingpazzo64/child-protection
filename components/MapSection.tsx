@@ -7,12 +7,14 @@ import { MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { servicesData } from '@/data/services';
+import { Directory } from '@/types';
 
 interface MapSectionProps {
   hoveredServiceId?: string | null;
+  directories: Directory[];
 }
 
-const MapSection = ({ hoveredServiceId }: MapSectionProps) => {
+const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -21,20 +23,12 @@ const MapSection = ({ hoveredServiceId }: MapSectionProps) => {
   const [showTokenInput, setShowTokenInput] = useState(false);
 
   // Service locations in Rwanda with IDs matching the services
-  const serviceLocations = [
-    { id: "1", name: "Central Family Support Center", coordinates: [-1.9441, 30.0619], district: "Kigali" },
-    { id: "2", name: "Child Advocacy Network", coordinates: [-1.9706, 30.1044], district: "Kigali" },
-    { id: "3", name: "Safe Haven Crisis Center", coordinates: [-2.5958, 29.7394], district: "Huye" },
-    { id: "4", name: "Youth Protection Services", coordinates: [-1.4996, 29.6341], district: "Musanze" },
-    { id: "5", name: "Community Child Welfare", coordinates: [-1.6778, 29.2667], district: "Rubavu" },
-    { id: "6", name: "Therapeutic Family Center", coordinates: [-1.9736, 30.4264], district: "Kayonza" },
-    { id: "7", name: "Rural Child Protection Unit", coordinates: [-1.2939, 30.3267], district: "Nyagatare" },
-    { id: "8", name: "Integrated Child Services", coordinates: [-2.0850, 29.7467], district: "Muhanga" },
-    { id: "9", name: "Children's Justice Center", coordinates: [-1.9667, 30.1333], district: "Kicukiro" },
-    { id: "10", name: "Special Needs Support Center", coordinates: [-2.6686, 29.6236], district: "Gisagara" },
-    { id: "11", name: "Child Rehabilitation Center", coordinates: [-1.4667, 29.8167], district: "Burera" },
-    { id: "12", name: "Educational Support Network", coordinates: [-2.3167, 29.7500], district: "Nyanza" },
-  ];
+  // const serviceLocations = directories.map((d) => ({
+  //   id: d.id.toString(),
+  //   name: d.nameOfOrganization,
+  //   coordinates: [d.lat, d.long],
+  //   district: d.district.name,
+  // }));
 
   const initializeMap = (token: string) => {
     if (!mapContainer.current || !token) return;
@@ -52,14 +46,14 @@ const MapSection = ({ hoveredServiceId }: MapSectionProps) => {
 
     map.current.on('load', () => {
       // Add service location markers
-      serviceLocations.forEach((location, index) => {
+      directories.forEach((location, index) => {
         // Find matching service data
-        const serviceData = servicesData.find(service => service.id.toString() === location.id);
+        // const serviceData = directories.find(service => service.id.toString() === location.id);
         
         // Create marker element
         const markerElement = document.createElement('div');
         markerElement.className = 'marker';
-        markerElement.setAttribute('data-service-id', location.id);
+        markerElement.setAttribute('data-service-id', location.id.toString());
         markerElement.innerHTML = `
           <div style="
             width: 24px; 
@@ -87,8 +81,8 @@ const MapSection = ({ hoveredServiceId }: MapSectionProps) => {
           closeOnClick: false
         }).setHTML(`
           <div style="padding: 12px; min-width: 200px;">
-            <h3 style="margin: 0 0 6px 0; font-weight: bold; color: #1f2937; font-size: 16px;">${serviceData?.name || location.name}</h3>
-            <p style="margin: 0 0 4px 0; color: #059669; font-weight: 600; font-size: 14px;">${serviceData?.mainService || 'Service Available'}</p>
+            <h3 style="margin: 0 0 6px 0; font-weight: bold; color: #1f2937; font-size: 16px;">${location?.nameOfOrganization}</h3>
+            <p style="margin: 0 0 4px 0; color: #059669; font-weight: 600; font-size: 14px;">${location?.serviceType.name || 'Service Available'}</p>
             <p style="margin: 0; color: #6b7280; font-size: 12px;">${location.district} District</p>
           </div>
         `);
@@ -103,12 +97,12 @@ const MapSection = ({ hoveredServiceId }: MapSectionProps) => {
           });
           
           // Show popup for clicked marker
-          popup.setLngLat([location.coordinates[1], location.coordinates[0]]).addTo(map.current!);
+          popup.setLngLat([location.lat, location.long]).addTo(map.current!);
         });
 
         // Add marker to map and store references
         const marker = new mapboxgl.Marker(markerElement)
-          .setLngLat([location.coordinates[1], location.coordinates[0]])
+          .setLngLat([location.lat, location.long])
           .addTo(map.current!);
         
         markersRef.current.push(marker);

@@ -5,21 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Filter, RotateCcw } from "lucide-react";
 
-const districts = [
-  "All Districts", "Gasabo", "Kicukiro", "Nyarugenge", "Bugesera", "Gatsibo", 
-  "Kayonza", "Kirehe", "Ngoma", "Nyagatare", "Rwamagana", "Burera", "Gakenke", 
-  "Gicumbi", "Musanze", "Rulindo", "Gisagara", "Huye", "Kamonyi", "Muhanga", 
-  "Nyamagabe", "Nyanza", "Nyaruguru", "Ruhango", "Karongi", "Ngororero", 
-  "Nyabihu", "Nyamasheke", "Rubavu", "Rusizi", "Rutsiro"
-];
+type SearchSectionProps = {
+  onFilter: (district: string, service: string) => void;
+  districts: { id: number; name: string }[];
+  serviceTypes: { id: number; name: string }[];
+};
 
-const services = [
-  "All service types", "Case Management", "General Child Protection", 
-  "Emergency Response", "Legal Aid", "Psychosocial Support", "Disability Service", 
-  "Rehabilitation", "Alternative Care", "Justice Services", "Education Services"
-];
-
-const SearchSection = ({ onFilter }: { onFilter: (district: string, service: string) => void }) => {
+const SearchSection = ({ onFilter, districts, serviceTypes }: SearchSectionProps) => {
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [selectedService, setSelectedService] = useState("All service types");
 
@@ -60,9 +52,10 @@ const SearchSection = ({ onFilter }: { onFilter: (district: string, service: str
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="All Districts">All Districts</SelectItem>
                 {districts.map((district) => (
-                  <SelectItem key={district} value={district}>
-                    {district}
+                  <SelectItem key={district.id} value={district.name}>
+                    {district.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -78,9 +71,10 @@ const SearchSection = ({ onFilter }: { onFilter: (district: string, service: str
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {services.map((service) => (
-                  <SelectItem key={service} value={service}>
-                    {service}
+                <SelectItem value="All service types">All service types</SelectItem>
+                {serviceTypes.map((s) => (
+                  <SelectItem key={s.id} value={s.name}>
+                    {s.name}
                   </SelectItem>
                 ))}
               </SelectContent>

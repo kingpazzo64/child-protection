@@ -47,6 +47,7 @@ export type District = {
 export type Directory = {
   id: number
   nameOfOrganization: string
+  description: string
   category: string
   email: string
   phone: string

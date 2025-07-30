@@ -25,6 +25,7 @@ export default function DirectoryFormModal({
   const [form, setForm] = useState({
     serviceTypeId: initialData?.serviceTypeId ?? 0,
     nameOfOrganization: initialData?.nameOfOrganization ?? '',
+    description: initialData?.description ?? '',
     category: initialData?.category ?? '',
     districtId: initialData?.districtId ?? 0,
     sectorId: initialData?.sectorId ?? 0,
@@ -210,6 +211,16 @@ export default function DirectoryFormModal({
             name="nameOfOrganization"
             placeholder="Name of Organization"
             value={form.nameOfOrganization}
+            onChange={handleChange}
+            required
+            className="col-span-2 border p-2 rounded"
+          />
+
+          <input
+            type="text"
+            name="description"
+            placeholder="Description"
+            value={form.description}
             onChange={handleChange}
             required
             className="col-span-2 border p-2 rounded"

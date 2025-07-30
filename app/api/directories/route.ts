@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     const {
       serviceTypeId,
       nameOfOrganization,
+      description,
       category,
       districtId,
       sectorId,
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
       data: {
         serviceTypeId: Number(serviceTypeId),
         nameOfOrganization,
+        description,
         category,
         districtId: Number(districtId),
         sectorId: Number(sectorId),
