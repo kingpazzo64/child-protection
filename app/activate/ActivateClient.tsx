@@ -4,6 +4,12 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { signIn } from 'next-auth/react'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image'
 
 export default function ActivateClient() {
   const router = useRouter()
@@ -13,6 +19,7 @@ export default function ActivateClient() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const paramToken = searchParams.get('token')
@@ -59,33 +66,72 @@ export default function ActivateClient() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-12 p-6 bg-white rounded shadow text-black">
-      <h2 className="text-xl font-bold mb-4">Activate Your Account</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="password"
-          placeholder="New password"
-          className="w-full border p-2 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Confirm password"
-          className="w-full border p-2 rounded"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded"
-          disabled={loading || !token}
-        >
-          {loading ? 'Activating...' : 'Activate'}
-        </button>
-      </form>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <Image 
+              src="/logo-color.png" 
+              alt="NCDA Logo" 
+              className="h-24 w-auto"
+              width={264}
+              height={64}
+            />
+          </div>
+          <CardTitle className="text-2xl">Activate Your Account</CardTitle>
+          <CardDescription>
+            Create password you wish to use
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">New password</Label>
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="New password"
+                className="w-full border p-2 rounded"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Confirm password</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm password"
+                  className="w-full border p-2 rounded"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <Button 
+              type="submit" 
+              className="bg-blue-600 text-white px-4 py-2 w-full"
+              disabled={loading}
+            >
+              {loading ? 'Activating...' : 'Activate'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

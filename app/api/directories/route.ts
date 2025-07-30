@@ -4,20 +4,38 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getToken } from 'next-auth/jwt'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   try {
-    const directories = await prisma.directory.findMany({ 
-      include: {
-        serviceType: true,
-        district: true,
-        sector: true,
-        cell: true,
-        village: true,
-        createdBy: true,
-      },
-      orderBy: { createdAt: 'asc' } 
-    })
-    return NextResponse.json({ directories })
+    if (!token || token.role === 'ADMIN') {
+      const directories = await prisma.directory.findMany({ 
+        include: {
+          serviceType: true,
+          district: true,
+          sector: true,
+          cell: true,
+          village: true,
+          createdBy: true,
+        },
+        orderBy: { createdAt: 'asc' } 
+      })
+      return NextResponse.json({ directories })
+    }
+    else{
+      const directories = await prisma.directory.findMany({ 
+        where: {createdById: Number(token.id)},
+        include: {
+          serviceType: true,
+          district: true,
+          sector: true,
+          cell: true,
+          village: true,
+          createdBy: true,
+        },
+        orderBy: { createdAt: 'asc' } 
+      })
+      return NextResponse.json({ directories })
+    }
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Failed to fetch directories' }, { status: 500 })

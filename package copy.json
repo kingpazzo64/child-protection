@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:seed": "ts-node prisma/seed.cjs",
+    "postinstall": "prisma generate && prisma migrate deploy && prisma db seed"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.6",
