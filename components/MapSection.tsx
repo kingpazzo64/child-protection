@@ -83,7 +83,7 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
           <div style="padding: 12px; min-width: 200px;">
             <h3 style="margin: 0 0 6px 0; font-weight: bold; color: #1f2937; font-size: 16px;">${location?.nameOfOrganization}</h3>
             <p style="margin: 0 0 4px 0; color: #059669; font-weight: 600; font-size: 14px;">${location?.serviceType.name || 'Service Available'}</p>
-            <p style="margin: 0; color: #6b7280; font-size: 12px;">${location.district} District</p>
+            <p style="margin: 0; color: #6b7280; font-size: 12px;">${location.district.name} District</p>
           </div>
         `);
 
@@ -102,8 +102,10 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
 
         // Add marker to map and store references
         const marker = new mapboxgl.Marker(markerElement)
-          .setLngLat([location.lat, location.long])
+          .setLngLat([location.long, location.lat])
           .addTo(map.current!);
+
+        console.log(marker)
         
         markersRef.current.push(marker);
         popupsRef.current.push(popup);
@@ -113,15 +115,15 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
 
   // Initialize map on component mount
   useEffect(() => {
-    if (mapboxToken) {
+    if (directories.length) {
       initializeMap(mapboxToken);
     }
-  }, [mapboxToken]);
+  }, [directories]);
 
   const handleTokenSubmit = () => {
     if (mapboxToken.trim()) {
       setShowTokenInput(false);
-      initializeMap(mapboxToken.trim());
+      // initializeMap(mapboxToken.trim());
     }
   };
 

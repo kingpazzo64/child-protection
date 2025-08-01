@@ -53,7 +53,7 @@ export default function ActivateClient() {
 
       if (loginRes?.ok) {
         toast.success('Account activated successfully!')
-        router.push('/dashboard')
+        router.push('/login')
       } else {
         toast.error('Activated, but login failed. Try logging in manually.')
       }

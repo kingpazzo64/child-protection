@@ -82,10 +82,10 @@ const SearchSection = ({ onFilter, districts, serviceTypes }: SearchSectionProps
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={handleSearch} className="bg-search-button hover:bg-search-button/90">
+            {/* <Button onClick={handleSearch} className="bg-search-button hover:bg-search-button/90">
               <MapPin className="w-4 h-4 mr-2" />
               Search
-            </Button>
+            </Button> */}
             <Button 
               variant="outline" 
               onClick={handleClearFilters}

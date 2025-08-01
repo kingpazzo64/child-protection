@@ -43,6 +43,14 @@ interface ServiceCardProps {
 }
 
 const ServiceCard = ({ directory }: ServiceCardProps) => {
+
+  function addCommas(input:Number | null | undefined) {
+    input = input ?? 0;
+    const [intPart, decPart] = input.toString().split('.');
+    const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return decPart ? `${withCommas}.${decPart}` : withCommas;
+  }
+
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-primary">
       <CardHeader className="pb-3">
@@ -57,7 +65,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
           </div>
           <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-success border-success">
-                {directory.paid ? `✓ PAID ${directory.amount} Rwf` : `Free`}
+                {directory.paid ? `${addCommas(directory.amount)} Rwf` : `Free`}
               </Badge>
             {/* <div className="flex items-center">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -77,10 +85,12 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
         </p>
         
         <div className="space-y-2 text-sm">
-          {/* <div className="flex items-start gap-2">
+          <div className="flex items-start gap-2">
             <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-            <span className="text-foreground">{address}</span>
-          </div> */}
+            <span className="text-foreground">
+              {`${directory.district.name} - ${directory.sector.name} - ${directory.cell.name} - ${directory.village.name}`}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 text-primary flex-shrink-0" />
             <span className="text-foreground">{directory.phone}</span>
