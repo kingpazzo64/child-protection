@@ -252,7 +252,7 @@ export default function DirectoryFormModal({
             name="urgency"
             value={form.urgency}
             onChange={(e) => setForm({ ...form, urgency: e.target.value })}
-            className="form-select"
+            className="border p-2 rounded"
           >
             <option value="CRITICAL">Critical</option>
             <option value="HIGH">High</option>
@@ -341,7 +341,7 @@ export default function DirectoryFormModal({
             placeholder="Website"
             value={form.website}
             onChange={handleChange}
-            className="col-span-2 border p-2 rounded"
+            className="border p-2 rounded"
           />
 
           <input
