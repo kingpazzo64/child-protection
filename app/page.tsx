@@ -118,14 +118,69 @@ const Index = () => {
       />
       
       {/* Mobile-first responsive layout */}
-      <div className="block md:flex md:h-[calc(100vh-200px)]">
-        {/* Map Section - Mobile: top, scrollable. Desktop: right side, sticky */}
-        <div className="h-[400px] md:w-[40%] md:sticky md:top-0 md:h-full md:order-2">
-          <MapSection hoveredServiceId={hoveredServiceId} directories={directories} />
+      <div className="flex flex-col md:flex-row md:h-[calc(100vh-200px)]">
+        {/* Services Section - Mobile: top. Desktop: left side, scrollable */}
+        <div className="order-1 md:w-[60%] md:overflow-y-auto">
+          <div className="p-4 md:p-6">
+            <div className="mb-6">
+              <p className="text-muted-foreground">
+                Showing {filtered.length} child protection services
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              {filtered.length > 0 ? (
+                filtered.map((directory) => (
+                  <div
+                    key={directory.id}
+                    onMouseEnter={() => setHoveredServiceId(directory.id.toString())}
+                    onMouseLeave={() => setHoveredServiceId(null)}
+                  >
+                    <ServiceCard directory={directory} />
+                  </div>
+                ))
+              ): (
+                <div className="text-center py-12">
+                  <div className="text-muted-foreground mb-2">
+                    <svg className="mx-auto h-12 w-12 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.7-2.6L12 4.5l5.7 7.9A7.962 7.962 0 0112 15z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground mb-1">No services found</h3>
+                  <p className="text-muted-foreground">
+                    No child protection services match your current filters. Try adjusting your search criteria or clear filters to see all available services.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Services Section - Mobile: bottom. Desktop: left side, scrollable */}
-        <div className="md:w-[60%] md:overflow-y-auto md:order-1">
+        {/* Map Section - Mobile: bottom. Desktop: right side, sticky */}
+        <div className="order-2 h-[400px] md:w-[40%] md:sticky md:top-0 md:h-full">
+          <MapSection hoveredServiceId={hoveredServiceId}  directories={directories} />
+        </div>
+      </div>
+
+      <Footer />
+      <ChatWidget />
+    </div>
+  );
+
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <SearchSection
+        onFilter={handleFilter}
+        districts={districts}
+        serviceTypes={serviceTypes}
+      />
+      
+      {/* Mobile-first responsive layout */}
+      <div className="flex flex-col md:flex-row md:h-[calc(100vh-200px)]">
+        {/* Services Section - Mobile: top. Desktop: left side, scrollable */}
+        <div className="order-1 md:w-[60%] md:overflow-y-auto">
           <div className="p-4 md:p-6">
             <div className="mb-6">
               <p className="text-muted-foreground">
@@ -159,6 +214,11 @@ const Index = () => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Map Section - Mobile: bottom. Desktop: right side, sticky */}
+        <div className="order-2 h-[400px] md:w-[40%] md:sticky md:top-0 md:h-full">
+          <MapSection hoveredServiceId={hoveredServiceId} directories={directories} />
         </div>
       </div>
 

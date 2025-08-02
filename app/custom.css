@@ -1237,6 +1237,12 @@ body {
 .z-\[1\] {
   z-index:1
 }
+.order-1 {
+  order:1
+}
+.order-2 {
+  order:2
+}
 .-mx-1 {
   margin-left:-.25rem;
   margin-right:-.25rem
@@ -3300,12 +3306,6 @@ body {
   .md\:top-0 {
     top:0
   }
-  .md\:order-1 {
-    order:1
-  }
-  .md\:order-2 {
-    order:2
-  }
   .md\:block {
     display:block
   }
@@ -3341,6 +3341,9 @@ body {
   }
   .md\:grid-cols-4 {
     grid-template-columns:repeat(4,minmax(0,1fr))
+  }
+  .md\:flex-row {
+    flex-direction:row
   }
   .md\:overflow-y-auto {
     overflow-y:auto

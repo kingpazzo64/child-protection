@@ -21,6 +21,7 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
   const popupsRef = useRef<mapboxgl.Popup[]>([]);
   const [mapboxToken, setMapboxToken] = useState('pk.eyJ1IjoiZnVrdW50YSIsImEiOiJjbWRjNmhhOWMwd2EzMmpzNnE0OTh1eGczIn0.Lgh7q_ARKrFLyWFyLzfTYw');
   const [showTokenInput, setShowTokenInput] = useState(false);
+  const [pinToShow, setPinToShow] = useState<string|null>();
 
   // Service locations in Rwanda with IDs matching the services
   // const serviceLocations = directories.map((d) => ({
@@ -56,9 +57,9 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
         markerElement.setAttribute('data-service-id', location.id.toString());
         markerElement.innerHTML = `
           <div style="
-            width: 24px; 
-            height: 24px; 
-            background-color: #dc2626; 
+            width: 48px; 
+            height: 48px; 
+            background-color: #24b058; 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
@@ -68,7 +69,7 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
             transition: all 0.2s ease;
             cursor: pointer;
           ">
-            <svg width="12" height="12" fill="white" viewBox="0 0 24 24">
+            <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
             </svg>
           </div>
@@ -82,30 +83,34 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
         }).setHTML(`
           <div style="padding: 12px; min-width: 200px;">
             <h3 style="margin: 0 0 6px 0; font-weight: bold; color: #1f2937; font-size: 16px;">${location?.nameOfOrganization}</h3>
-            <p style="margin: 0 0 4px 0; color: #059669; font-weight: 600; font-size: 14px;">${location?.serviceType.name || 'Service Available'}</p>
+            <p style="margin: 0 0 4px 0; color: #24b058; font-weight: 600; font-size: 14px;">${location?.serviceType.name || 'Service Available'}</p>
             <p style="margin: 0; color: #6b7280; font-size: 12px;">${location.district.name} District</p>
           </div>
         `);
 
         // Add click event listener to marker
-        markerElement.addEventListener('click', () => {
-          // Close all other popups first
-          popupsRef.current.forEach(p => {
-            if (p.isOpen()) {
-              p.remove();
-            }
-          });
+        markerElement.addEventListener('mouseenter', () => {
+          setPinToShow(location.id+'')
+          // // Close all other popups first
+          // popupsRef.current.forEach(p => {
+          //   if (p.isOpen()) {
+          //     console.log('opened');
+          //     p.remove();
+          //   }            
+          // });
           
-          // Show popup for clicked marker
-          popup.setLngLat([location.lat, location.long]).addTo(map.current!);
+          // // Show popup for clicked marker
+          // popup.setLngLat([location.lat, location.long]).addTo(map.current!);
+        });
+
+        markerElement.addEventListener('mouseleave', () => {
+          setPinToShow(null)
         });
 
         // Add marker to map and store references
         const marker = new mapboxgl.Marker(markerElement)
           .setLngLat([location.long, location.lat])
           .addTo(map.current!);
-
-        console.log(marker)
         
         markersRef.current.push(marker);
         popupsRef.current.push(popup);
@@ -127,6 +132,10 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
     }
   };
 
+  useEffect(() => {
+    setPinToShow(hoveredServiceId);
+  },[hoveredServiceId])
+
   // Handle hover effect on pins with popup display
   useEffect(() => {
     if (!map.current) return;
@@ -144,11 +153,11 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
       const serviceId = marker.getAttribute('data-service-id');
       const pinElement = marker.querySelector('div') as HTMLElement;
       
-      if (hoveredServiceId === serviceId) {
+      if (pinToShow === serviceId) {
         // Highlight the pin
         if (pinElement) {
           pinElement.style.backgroundColor = '#ea580c';
-          pinElement.style.transform = 'scale(1.2)';
+          pinElement.style.transform = 'scale(.5)';
           pinElement.style.zIndex = '1000';
         }
         
@@ -161,13 +170,13 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
       } else {
         // Reset the pin
         if (pinElement) {
-          pinElement.style.backgroundColor = '#dc2626';
+          pinElement.style.backgroundColor = '#24b058';
           pinElement.style.transform = 'scale(1)';
           pinElement.style.zIndex = 'auto';
         }
       }
     });
-  }, [hoveredServiceId]);
+  }, [pinToShow]);
 
   return (
     <div className="h-full bg-white border-l border-border">
