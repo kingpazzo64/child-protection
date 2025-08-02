@@ -92,7 +92,7 @@ const Index = () => {
     setFiltered(results)
   }, [directories, debouncedQuery, districtFilter, serviceTypeFilter])
 
-  const handleFilter = (district: string, service: string) => {
+  const handleFilter = (district: string, service: string, urgency: string) => {
     let filtered = [...directories]
 
     if (district !== "All Districts") {
@@ -103,6 +103,10 @@ const Index = () => {
       filtered = filtered.filter(s => 
         s.serviceType.name === service || s.otherServices?.toLowerCase().includes(service)
       );
+    }
+
+    if (urgency !== "All urgency levels") {
+      filtered = filtered.filter(s => s.urgency === urgency);
     }
 
     setFiltered(filtered);
@@ -158,7 +162,7 @@ const Index = () => {
 
         {/* Map Section - Mobile: bottom. Desktop: right side, sticky */}
         <div className="order-2 h-[400px] md:w-[40%] md:sticky md:top-0 md:h-full">
-          <MapSection hoveredServiceId={hoveredServiceId}  directories={directories} />
+          <MapSection hoveredServiceId={hoveredServiceId}  directories={filtered} />
         </div>
       </div>
 

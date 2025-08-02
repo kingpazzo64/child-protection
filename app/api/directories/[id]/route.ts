@@ -28,6 +28,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       estimatedAttendance,
       location,
       otherServices,
+      urgency,
     } = await req.json()
 
     const [latStr, longStr] = location.split(',').map((part: string) => part.trim())
@@ -56,6 +57,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         lat,
         long,
         otherServices,
+        urgency,
       },
     })
 

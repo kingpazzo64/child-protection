@@ -46,6 +46,11 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
     map.current.addControl(new mapboxgl.NavigationControl());
 
     map.current.on('load', () => {
+      // Clear existing markers first
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
+      popupsRef.current = [];
+
       // Add service location markers
       directories.forEach((location, index) => {
         // Find matching service data
@@ -120,10 +125,10 @@ const MapSection = ({ hoveredServiceId, directories }: MapSectionProps) => {
 
   // Initialize map on component mount
   useEffect(() => {
-    if (directories.length) {
+    if (mapboxToken) {
       initializeMap(mapboxToken);
     }
-  }, [directories]);
+  }, [mapboxToken, directories]);
 
   const handleTokenSubmit = () => {
     if (mapboxToken.trim()) {

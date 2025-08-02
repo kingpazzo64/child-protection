@@ -100,7 +100,7 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-3">
-            <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground">
+            {/* <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground">
               Home
             </Button>
             <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground">
@@ -108,7 +108,7 @@ const Header = () => {
             </Button>
             <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground">
               Report Abuse
-            </Button>
+            </Button> */}
             <Dialog open={isEmergencyModalOpen} onOpenChange={setIsEmergencyModalOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground">
@@ -147,7 +147,7 @@ const Header = () => {
         {isMobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-white/20">
             <div className="flex flex-col space-y-2 pt-4">
-              <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground justify-start">
+              {/* <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground justify-start">
                 Home
               </Button>
               <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground justify-start">
@@ -155,7 +155,7 @@ const Header = () => {
               </Button>
               <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground justify-start">
                 Report Abuse
-              </Button>
+              </Button> */}
               <Dialog open={isEmergencyModalOpen} onOpenChange={setIsEmergencyModalOpen}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" className="text-header-foreground hover:bg-white/10 hover:text-header-foreground justify-start">

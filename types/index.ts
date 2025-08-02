@@ -78,4 +78,6 @@ export type Directory = {
   lat: number
   long: number
   otherServices?: string
+
+  urgency?: string
 }

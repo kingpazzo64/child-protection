@@ -42,6 +42,7 @@ export default function DirectoryFormModal({
         ? `${initialData.lat},${initialData.long}`
         : '',
     otherServices: initialData?.otherServices ?? '',
+    urgency: initialData?.urgency ?? '',
   })
 
   const [sectors, setSectors] = useState([])
@@ -245,6 +246,18 @@ export default function DirectoryFormModal({
                 {type.name}
               </option>
             ))}
+          </select>
+
+          <select
+            name="urgency"
+            value={form.urgency}
+            onChange={(e) => setForm({ ...form, urgency: e.target.value })}
+            className="form-select"
+          >
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
           </select>
 
           <select

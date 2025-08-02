@@ -6,33 +6,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Filter, RotateCcw } from "lucide-react";
 
 type SearchSectionProps = {
-  onFilter: (district: string, service: string) => void;
+  onFilter: (district: string, service: string, urgency: string) => void;
   districts: { id: number; name: string }[];
   serviceTypes: { id: number; name: string }[];
 };
 
+const urgencyLevels = [
+  "All urgency levels", "Low", "Medium", "High", "Critical"
+];
+
 const SearchSection = ({ onFilter, districts, serviceTypes }: SearchSectionProps) => {
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [selectedService, setSelectedService] = useState("All service types");
+  const [selectedUrgency, setSelectedUrgency] = useState("All urgency levels");
 
   const handleDistrictChange = (district: string) => {
     setSelectedDistrict(district);
-    onFilter(district, selectedService);
+    onFilter(district, selectedService, selectedUrgency);
   };
 
   const handleServiceChange = (service: string) => {
     setSelectedService(service);
-    onFilter(selectedDistrict, service);
+    onFilter(selectedDistrict, service, selectedUrgency);
+  };
+
+  const handleUrgencyChange = (urgency: string) => {
+    setSelectedUrgency(urgency);
+    onFilter(selectedDistrict, selectedService, urgency);
   };
 
   const handleSearch = () => {
-    onFilter(selectedDistrict, selectedService);
+    onFilter(selectedDistrict, selectedService, selectedUrgency);
   };
 
   const handleClearFilters = () => {
     setSelectedDistrict("All Districts");
     setSelectedService("All service types");
-    onFilter("All Districts", "All service types");
+    onFilter("All Districts", "All service types", "All urgency levels");
   };
 
   return (
@@ -81,15 +91,33 @@ const SearchSection = ({ onFilter, districts, serviceTypes }: SearchSectionProps
             </Select>
           </div>
 
+          <div className="min-w-[140px] sm:min-w-[200px]">
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Urgency Level
+            </label>
+            <Select value={selectedUrgency} onValueChange={handleUrgencyChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {urgencyLevels.map((urgency) => (
+                  <SelectItem key={urgency} value={urgency}>
+                    {urgency}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="flex gap-2">
             {/* <Button onClick={handleSearch} className="bg-search-button hover:bg-search-button/90">
               <MapPin className="w-4 h-4 mr-2" />
               Search
             </Button> */}
             <Button 
-              variant="outline" 
+              // variant="outline" 
               onClick={handleClearFilters}
-              className="border-primary text-primary hover:bg-primary/10"
+              className="bg-search-button hover:bg-search-button/90"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Clear Filters

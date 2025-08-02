@@ -33,6 +33,13 @@ model User {
   @@map("users")
 }
 
+enum Urgency {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
 enum Role {
   ADMIN
   ENUMERATOR
@@ -80,6 +87,8 @@ model Directory {
   otherServices       String?
 
   description         String?
+
+  urgency             Urgency     @default(MEDIUM)
 }
 
 

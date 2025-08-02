@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
       estimatedAttendance,
       location, // expected format: "lat,long"
       otherServices,
+      urgency,
     } = await req.json()
 
     const [latStr, longStr] = location.split(',').map((part: string) => part.trim())
@@ -91,6 +92,7 @@ export async function POST(req: NextRequest) {
         lat,
         long,
         otherServices,
+        urgency,
         createdById: Number(token.id),
       },
     })
