@@ -11,7 +11,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate reset --force",
     
-    "postinstall": "prisma generate && prisma migrate reset --force && prisma db seed"
+    "postinstall": "prisma generate && prisma migrate reset --force"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.6",
