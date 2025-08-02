@@ -9,10 +9,10 @@
     "lint": "next lint",
 
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
+    "prisma:migrate": "prisma migrate reset --force",
     "prisma:seed": "ts-node prisma/seed.cjs",
     
-    "postinstall": "prisma generate && prisma migrate reset --force && prisma migrate deploy && prisma db seed"
+    "postinstall": "prisma generate && prisma migrate reset --force && prisma db seed"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.6",
