@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import UserEditModal from '@/components/users/UserEditModal'
+import { Button } from "@/components/ui/button"
+
 
 export default function UsersPage() {
   const [form, setForm] = useState({
@@ -101,24 +103,19 @@ export default function UsersPage() {
             <option value="enumerator">Enumerator</option>
             <option value="admin">Admin</option>
           </select>
-
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 w-full disabled:opacity-50 flex items-center justify-center"
-            disabled={loading}
-          >
+          <Button type="submit" disabled={loading} className='w-full'>
             {loading ? (
-              <>
-                <svg className="w-4 h-4 mr-2 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                </svg>
-                Sending...
-              </>
-            ) : (
-              'Invite User'
-            )}
-          </button>
+                <>
+                  <svg className="w-4 h-4 mr-2 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                  Sending...
+                </>
+              ) : (
+                'Invite User'
+              )}
+          </Button>
         </form>
       </div>
 

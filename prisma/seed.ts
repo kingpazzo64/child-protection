@@ -13,6 +13,7 @@ interface Sector { name: string; cells: Cell[] }
 interface District { name: string; sectors: Sector[] }
 interface Province { name: string; districts: District[] }
 interface LocationData { provinces: Province[] }
+interface Service { name: string }
 
 async function main() {
   // 1) Seed admin
@@ -38,9 +39,9 @@ async function main() {
   }
 
   // 2) Seed locations
-  const filePath = path.join(__dirname, 'data', 'locations.json')
-  const raw = fs.readFileSync(filePath, 'utf-8')
-  const locationData: LocationData = JSON.parse(raw)
+  const locationPath = path.join(__dirname, 'data', 'locations.json')
+  const rawLocation = fs.readFileSync(locationPath, 'utf-8')
+  const locationData: LocationData = JSON.parse(rawLocation)
 
   for (const province of locationData.provinces) {
     for (const district of province.districts) {
@@ -69,6 +70,22 @@ async function main() {
   }
 
   console.log('✅ Location seeding completed!')
+
+  const servicePath = path.join(__dirname, 'data', 'serviceTypes.json')
+  const rawService = fs.readFileSync(servicePath, 'utf-8')
+  const serviceData = JSON.parse(rawService)
+  for (const name of serviceData) {
+    await prisma.serviceType.create({
+      data: {
+        name
+      },
+    })
+  }
+
+
+  
+
+
 }
 
 main()

@@ -44,34 +44,38 @@ const SearchSection = ({ onFilter, districts, serviceTypes, directories }: Searc
   const handleClearFilters = () => {
     setSelectedDistrict("All Districts");
     setSelectedService("All service types");
+    setSelectedUrgency("All urgency levels");
     onFilter("All Districts", "All service types", "All urgency levels");
   };
 
   // Get available districts based on current service filter
-  const getAvailableDistricts = ():District[] => {
-    if (selectedService === "All service types") {
-      return districts;
-    }
-    const availableDistricts = new Set(
-      directories
-        .filter(service => String(service.serviceTypeId) === selectedService)
-        .map(service => service.district)
+  const getAvailableDistricts = (): District[] => {
+    const filtered = directories.filter(item =>
+      (selectedService === "All service types"    // no service‐type filter
+        || item.serviceType.name === selectedService)
+      &&
+      (selectedUrgency === "All urgency levels"  // no urgency filter
+        || item.urgency === selectedUrgency.toUpperCase())
     );
-    return [...Array.from(availableDistricts).sort()];
+
+    const uniqueDistricts = new Set(filtered.map(item => item.district));
+    return [...uniqueDistricts].sort();
   };
 
-  // Get available services based on current district filter
-  const getAvailableServices = ():ServiceType[] => {
-    if (selectedDistrict === "All Districts") {
-      return serviceTypes;
-    }
-    const availableServices = new Set(
-      directories
-        .filter(service => String(service.districtId) === selectedDistrict)
-        .map(service => service.serviceType)
+  const getAvailableServices = (): ServiceType[] => {
+    const filtered = directories.filter(item =>
+      (selectedDistrict === "All Districts"       // no district filter
+        || item.district.name === selectedDistrict)
+      &&
+      (selectedUrgency === "All urgency levels"
+        || item.urgency === selectedUrgency.toUpperCase())
     );
-    return [...Array.from(availableServices).sort()];
+
+    const uniqueServices = new Set(filtered.map(item => item.serviceType));
+    return [...uniqueServices].sort();
   };
+
+
 
   return (
     <div className="bg-white shadow-sm border-b border-border p-4 md:p-6">
@@ -136,7 +140,7 @@ const SearchSection = ({ onFilter, districts, serviceTypes, directories }: Searc
               </SelectContent>
             </Select>
           </div>
-
+          
           <div className="flex gap-2">
             {/* <Button onClick={handleSearch} className="bg-search-button hover:bg-search-button/90">
               <MapPin className="w-4 h-4 mr-2" />
@@ -154,11 +158,12 @@ const SearchSection = ({ onFilter, districts, serviceTypes, directories }: Searc
         </div>
         
         {/* Available Services and Districts Display - Only show when filters are applied */}
-          <div className="grid grid-cols-12 gap-4 mb-8">
+          <div className="grid grid-cols-12 gap-4 my-4">
             {/* Available Services */}
-            {getAvailableServices().length > 1 && (selectedDistrict !== "All Districts" || selectedUrgency !== "All urgency levels") && (
+            
+            {(selectedDistrict !== "All Districts" || selectedUrgency !== "All urgency levels") && (
               <div className="col-span-6">
-                <h3 className="text-lg font-semibold text-blue-600 mb-3">Available Services</h3>
+                {getAvailableServices().length ? <h3 className="text-lg font-semibold text-blue-600 mb-3">Services in {selectedDistrict}</h3> : ''}
                 <div className="flex flex-wrap gap-2">
                   {getAvailableServices().map((service) => (
                     <span 
@@ -174,9 +179,9 @@ const SearchSection = ({ onFilter, districts, serviceTypes, directories }: Searc
             )}
             
             {/* Available Districts */}
-            {getAvailableDistricts().length > 1 && (selectedService !== "All service types" || selectedUrgency !== "All urgency levels") && (
+            {(selectedService !== "All service types" || selectedUrgency !== "All urgency levels") && (
               <div className="col-span-6">
-                <h3 className="text-lg font-semibold text-green-600 mb-3">Available Districts</h3>
+                {getAvailableDistricts().length ? <h3 className="text-lg font-semibold text-green-600 mb-3">Districts with {selectedService}</h3> : ''}
                 <div className="flex flex-wrap gap-2">
                   {getAvailableDistricts().map((district) => (
                     <span 
@@ -190,6 +195,7 @@ const SearchSection = ({ onFilter, districts, serviceTypes, directories }: Searc
                 </div>
               </div>
             )}
+            
           </div>
       </div>
     </div>

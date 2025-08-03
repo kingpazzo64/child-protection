@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import DirectoryFormModal from '@/components/DirectoryFormModal'
 import { Directory, District, ServiceType } from '@/types'
+import { Button } from "@/components/ui/button"
+
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -108,13 +110,10 @@ export default function DirectoryPage() {
   return (
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h2 className="text-2xl font-bold">Directories</h2>
-        <button
-          onClick={handleAdd}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Add Directory
-        </button>
+        <h2 className="text-2xl font-bold">Services</h2>
+        <Button onClick={handleAdd}>
+          Add a service
+        </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
@@ -240,3 +239,5 @@ export default function DirectoryPage() {
     </div>
   )
 }
+
+

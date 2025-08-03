@@ -1,13 +1,12 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Menu } from "lucide-react"
-import "../dashboard.css";
 
 interface MainLayoutProps {
   children: React.ReactNode
 }
 
-export function DashboardLayout({ children }: MainLayoutProps) {
+export function MainLayout({ children }: MainLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -20,7 +19,7 @@ export function DashboardLayout({ children }: MainLayoutProps) {
               <SidebarTrigger className="lg:hidden">
                 <Menu className="w-5 h-5" />
               </SidebarTrigger>
-              <h1 className="text-xl font-semibold text-foreground">Child Protection Services Directory</h1>
+              <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
             </div>
             
             <div className="flex items-center gap-4">
@@ -39,5 +38,3 @@ export function DashboardLayout({ children }: MainLayoutProps) {
     </SidebarProvider>
   )
 }
-
-export default DashboardLayout

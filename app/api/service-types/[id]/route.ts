@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { getToken } from 'next-auth/jwt'
 
 export async function PATCH(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+    
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  if (!token || token.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+    
   const { id } = await params
-  const { name } = await request.json()
-
+  const { name } = await req.json()
+  
    try {
     const updated = await prisma.serviceType.update({
     where: { id: parseInt(id) },
@@ -21,9 +28,13 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  if (!token || token.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
   const { id } = await params
 
    try {

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { ServiceType } from '@/types'
 import ServiceTypeModal from '@/components/ServiceTypeModal'
 import toast from 'react-hot-toast'
+import { Button } from "@/components/ui/button"
 
 export default function ServiceTypesPage() {
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
@@ -69,12 +70,9 @@ export default function ServiceTypesPage() {
     <div className="max-w-4xl p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Service Types</h1>
-        <button
-          onClick={handleAdd}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Add Service Type
-        </button>
+        <Button onClick={handleAdd}>
+          Add Directory
+        </Button>
       </div>
 
       <table className="w-full text-sm border">

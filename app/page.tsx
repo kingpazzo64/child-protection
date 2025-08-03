@@ -106,7 +106,7 @@ const Index = () => {
     }
 
     if (urgency !== "All urgency levels") {
-      filtered = filtered.filter(s => s.urgency === urgency);
+      filtered = filtered.filter(s => s.urgency === urgency.toUpperCase());
     }
 
     setFiltered(filtered);

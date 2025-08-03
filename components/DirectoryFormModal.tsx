@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Dialog } from '@headlessui/react'
 import { Directory, District, ServiceType } from '@/types'
+import { Button } from "@/components/ui/button"
 
 interface Props {
   initialData?: Partial<Directory>
@@ -184,7 +185,7 @@ export default function DirectoryFormModal({
       })
 
       if (res.ok) {
-        toast.success(`Directory ${initialData?.id ? 'updated' : 'created'} successfully`)
+        toast.success(`Service ${initialData?.id ? 'updated' : 'created'} successfully`)
         onSaved()
         onClose()
       } else {
@@ -201,9 +202,15 @@ export default function DirectoryFormModal({
 
   return (
     <Dialog open={modalOpen} onClose={onClose} className="fixed z-50 inset-0 p-4 overflow-y-auto">
-      <div className="bg-white max-w-2xl mx-auto rounded-lg shadow p-6">
+      
+      <div className="bg-white max-w-2xl mx-auto rounded-lg shadow p-6 ">
+        <div className='text-right'>
+          <Button onClick={onClose} className="">
+            X
+          </Button>
+        </div>
         <Dialog.Title className="text-xl font-bold mb-4">
-          {initialData ? 'Edit Directory' : 'Add Directory'}
+          {initialData ? 'Edit Service' : 'Add Service'}
         </Dialog.Title>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
@@ -319,18 +326,18 @@ export default function DirectoryFormModal({
 
           <input
             type="text"
-            name="email"
-            placeholder="Email"
-            value={form.email}
+            name="phone"
+            placeholder="Phone"
+            value={form.phone}
             onChange={handleChange}
             className="col-span-1 border p-2 rounded"
           />
 
           <input
             type="text"
-            name="phone"
-            placeholder="Phone"
-            value={form.phone}
+            name="email"
+            placeholder="Email"
+            value={form.email}
             onChange={handleChange}
             className="col-span-1 border p-2 rounded"
           />
@@ -392,21 +399,19 @@ export default function DirectoryFormModal({
           />
 
           <div className="col-span-2 flex justify-end gap-2 mt-4">
-            <button
+            <Button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded"
               disabled={saving}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded"
               disabled={saving}
             >
               {saving ? 'Saving...' : 'Save'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
