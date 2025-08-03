@@ -1,23 +1,16 @@
 // lib/getCurrentUser.server.ts
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken"
+import { getServerSession } from "next-auth"
+import { authOptions } from "./auth"
 
-interface JwtPayload {
-  id: string
-  name: string
-  email: string
-  role: string
-}
+export async function getCurrentUser() {
+  const session = await getServerSession(authOptions)
 
-export async function getCurrentUser(): Promise<JwtPayload | null> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get("token")?.value
+  if (!session?.user) return null
 
-  if (!token) return null
-
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
-  } catch {
-    return null
+  return {
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
+    role: session.user.role,
   }
 }
