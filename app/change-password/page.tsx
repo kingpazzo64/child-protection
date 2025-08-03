@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button';
 
 export default function ChangePasswordPage() {
   const [current, setCurrent] = useState('')
@@ -31,7 +32,12 @@ export default function ChangePasswordPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <input type="password" placeholder="Current Password" value={current} onChange={e => setCurrent(e.target.value)} className="w-full border p-2" required />
         <input type="password" placeholder="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full border p-2" required />
-        <button className="bg-blue-600 text-white px-4 py-2">Update Password</button>
+        <Button 
+          type="submit" 
+          className="w-full"
+        >
+          Update Password
+        </Button>
       </form>
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>

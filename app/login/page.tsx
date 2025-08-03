@@ -98,7 +98,7 @@ export default function LoginPage() {
             </div>
             <Button 
               type="submit" 
-              className="w-full"
+              className="bg-blue-600 text-white px-4 py-2 w-full"
               disabled={isLoading}
             >
               {isLoading ? 'Logging in...' : 'Login'}

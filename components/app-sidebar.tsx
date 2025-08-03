@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Sidebar,
@@ -13,30 +13,35 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { LogoutButton } from "./LogoutButton"
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import { usePathname } from "next/navigation"
+import Image from "next/image"
 
-const navigationItems = [
-  { title: "Dashboard", url: "/dashboard"},
-  { title: "Directories", url: "/dashboard/directories"},
-  { title: "Service Types", url: "/dashboard/service-types"},
-  { title: "Users", url: "/dashboard/users"},
-  { title: "Change Password", url: "/change-password"},
-]
+interface AppSidebarProps {
+  user: {
+    name: string
+    role: string
+  } | null
+}
 
-
-
-export function AppSidebar() {
+export function AppSidebar({ user }: AppSidebarProps) {
   const { state } = useSidebar()
-  const router = useRouter()
-
-  const currentPath = window.location.pathname 
-
+  const currentPath = usePathname()
   const isActive = (path: string) => currentPath === path
-  const isExpanded = navigationItems.some((item) => isActive(item.url))
+
+  const navigationItems = [
+    { title: "Dashboard", url: "/dashboard" },
+    { title: "Directories", url: "/dashboard/directories" },
+    { title: "Service Types", url: "/dashboard/service-types", restricted: true },
+    { title: "Users", url: "/dashboard/users", restricted: true },
+    { title: "Change Password", url: "/change-password" },
+  ]
+
+  const filteredNavigationItems = navigationItems.filter(
+    (item) => !(item.restricted && user?.role === "enumerator")
+  )
 
   return (
-    <Sidebar 
+    <Sidebar
       className={`transition-all duration-300 ${
         state === "collapsed" ? "w-14" : "w-64"
       }`}
@@ -45,25 +50,31 @@ export function AppSidebar() {
       <SidebarContent className="bg-sidebar border-r border-sidebar-border">
         <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            
             {state !== "collapsed" && (
-              <Image 
-                src="/logo-color.png" 
-                alt="NCDA Logo" 
+              <Image
+                src="/logo-color.png"
+                alt="NCDA Logo"
                 className="h-24 w-auto"
                 width={264}
                 height={64}
-                />
-)}
+              />
+            )}
           </div>
         </div>
+
+        {state !== "collapsed" && user && (
+          <div className="px-4 py-2 border-b border-sidebar-border text-sm text-sidebar-foreground">
+            <p className="font-semibold">{user.name}</p>
+            <p className="capitalize text-xs text-muted-foreground">{user.role}</p>
+          </div>
+        )}
 
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="px-2">
-              {navigationItems.map((item) => (
+              {filteredNavigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     asChild
                     className={`w-full justify-start gap-3 px-3 py-2 rounded-lg transition-colors ${
                       isActive(item.url)
@@ -80,8 +91,9 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+
             <div className="mt-8">
-                <LogoutButton />
+              <LogoutButton />
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
