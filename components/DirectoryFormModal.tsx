@@ -370,7 +370,7 @@ export default function DirectoryFormModal({
             className="col-span-2 border p-2 rounded"
           />
 
-          <label className="col-span-1 flex items-center gap-2">
+          {/* <label className="col-span-1 flex items-center gap-2">
             <input
               type="checkbox"
               name="paid"
@@ -378,17 +378,17 @@ export default function DirectoryFormModal({
               onChange={handleChange}
             />
             Paid
-          </label>
-
+          </label> */}
+          <label>Amount Paid</label>
           <input
             type="number"
             name="amount"
             placeholder="Amount"
             value={form.amount}
             onChange={handleChange}
-            className="col-span-1 border p-2 rounded"
+            className="col-span-2 border p-2 rounded"
           />
-
+          <label>Estimated Attendance</label>
           <input
             type="number"
             name="estimatedAttendance"
