@@ -6,12 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint"
 
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate reset --force",
     
-    "postinstall": "prisma generate && prisma migrate reset --force"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.6",
