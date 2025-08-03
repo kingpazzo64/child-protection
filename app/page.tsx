@@ -119,6 +119,7 @@ const Index = () => {
         onFilter={handleFilter}
         districts={districts}
         serviceTypes={serviceTypes}
+        directories={directories}
       />
       
       {/* Mobile-first responsive layout */}
@@ -179,6 +180,7 @@ const Index = () => {
         onFilter={handleFilter}
         districts={districts}
         serviceTypes={serviceTypes}
+        directories={directories}
       />
       
       {/* Mobile-first responsive layout */}
