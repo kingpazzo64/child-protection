@@ -9,13 +9,14 @@ interface MainLayoutProps {
 }
 
 
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()
 
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar/>
+        <AppSidebar />
         
         <div className="flex-1 flex flex-col">
           {/* Header */}

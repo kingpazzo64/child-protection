@@ -1,61 +1,104 @@
-// components/app-sidebar.tsx
+"use client"
 
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, Layers } from "lucide-react"
+import { LogoutButton } from "./LogoutButton"
+import { usePathname } from "next/navigation"
+import Image from "next/image"
 
 interface AppSidebarProps {
   user: {
-    id: string
+    id: number
     name: string
-    email: string
     role: string
   } | null
 }
 
 export function AppSidebar() {
+  const { state } = useSidebar()
+  const currentPath = usePathname()
+  const isActive = (path: string) => currentPath === path
+
+  const navigationItems = [
+    { title: "Dashboard", url: "/dashboard" },
+    { title: "Directories", url: "/dashboard/directories" },
+    { title: "Service Types", url: "/dashboard/service-types", restricted: true },
+    { title: "Users", url: "/dashboard/users", restricted: true },
+    { title: "Change Password", url: "/change-password" },
+  ]
+
+  // const filteredNavigationItems = navigationItems.filter(
+  //   (item) => !(item.restricted && user?.role === "enumerator")
+  // )
 
   return (
-    <aside className="hidden lg:flex w-64 bg-white border-r border-border flex-col">
-      <div className="h-16 flex items-center px-6 border-b border-border text-xl font-bold">
-        NCDA
-      </div>
+    <Sidebar
+      className={`transition-all duration-300 ${
+        state === "collapsed" ? "w-14" : "w-64"
+      }`}
+      collapsible="icon"
+    >
+      <SidebarContent className="bg-sidebar border-r border-sidebar-border">
+        <div className="p-4 border-b border-sidebar-border">
+          <div className="flex items-center gap-3">
+            {state !== "collapsed" && (
+              <Image
+                src="/logo-color.png"
+                alt="NCDA Logo"
+                className="h-24 w-auto"
+                width={264}
+                height={64}
+              />
+            )}
+          </div>
+        </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2 text-sm">
-        <Link
-          href="/dashboard"
-          className={cn("flex items-center gap-2 px-3 py-2 rounded hover:bg-muted")}
-        >
-          <LayoutDashboard className="w-4 h-4" />
-          Dashboard
-        </Link>
+        {/* {state !== "collapsed" && user && (
+          <div className="px-4 py-2 border-b border-sidebar-border text-sm text-sidebar-foreground">
+            <p className="font-semibold">{user.name}</p>
+            <p className="capitalize text-xs text-muted-foreground">{user.role}</p>
+          </div>
+        )} */}
 
-        
-            <Link
-              href="/dashboard/users"
-              className={cn("flex items-center gap-2 px-3 py-2 rounded hover:bg-muted")}
-            >
-              <Users className="w-4 h-4" />
-              Users
-            </Link>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="px-2">
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    className={`w-full justify-start gap-3 px-3 py-2 rounded-lg transition-colors ${
+                      isActive(item.url)
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                    }`}
+                  >
+                    <Link href={item.url}>
+                      {state !== "collapsed" && (
+                        <span className="truncate">{item.title}</span>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
 
-            <Link
-              href="/dashboard/service-types"
-              className={cn("flex items-center gap-2 px-3 py-2 rounded hover:bg-muted")}
-            >
-              <Layers className="w-4 h-4" />
-              Service Types
-            </Link>
-          
-
-        <Link
-          href="/dashboard/directories"
-          className={cn("flex items-center gap-2 px-3 py-2 rounded hover:bg-muted")}
-        >
-          <Layers className="w-4 h-4" />
-          Directories
-        </Link>
-      </nav>
-    </aside>
+            <div className="mt-8">
+              <LogoutButton />
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   )
 }
