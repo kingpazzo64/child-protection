@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
         email,
         phone,
         website,
-        paid,
+        paid: Number(amount) > 0,
         amount: Number(amount) ?? 0,
         estimatedAttendance: Number(estimatedAttendance) ?? 0,
         lat,

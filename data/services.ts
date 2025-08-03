@@ -11,6 +11,7 @@ export interface Service {
   verified: boolean;
   rating: number;
   district: string;
+  urgency: 'Low' | 'Medium' | 'High' | 'Critical';
 }
 
 export const servicesData: Service[] = [
@@ -26,7 +27,8 @@ export const servicesData: Service[] = [
     services: ["Family Counseling", "Emergency Housing", "Legal Support"],
     verified: true,
     rating: 5,
-    district: "Gasabo"
+    district: "Gasabo",
+    urgency: "Medium"
   },
   {
     id: 2,
@@ -40,7 +42,8 @@ export const servicesData: Service[] = [
     services: ["Child Advocacy", "Court Support", "Victim Services"],
     verified: true,
     rating: 4,
-    district: "Kicukiro"
+    district: "Kicukiro",
+    urgency: "High"
   },
   {
     id: 3,
@@ -54,7 +57,8 @@ export const servicesData: Service[] = [
     services: ["Crisis Intervention", "Emergency Shelter", "24/7 Hotline"],
     verified: true,
     rating: 5,
-    district: "Huye"
+    district: "Huye",
+    urgency: "Critical"
   },
   {
     id: 4,
@@ -68,7 +72,8 @@ export const servicesData: Service[] = [
     services: ["Youth Counseling", "Educational Support", "Mentorship"],
     verified: true,
     rating: 4,
-    district: "Musanze"
+    district: "Musanze",
+    urgency: "Low"
   },
   {
     id: 5,
@@ -82,7 +87,8 @@ export const servicesData: Service[] = [
     services: ["Welfare Assessment", "Family Reunification", "Foster Care"],
     verified: true,
     rating: 4,
-    district: "Rubavu"
+    district: "Rubavu",
+    urgency: "Medium"
   },
   {
     id: 6,
@@ -96,7 +102,8 @@ export const servicesData: Service[] = [
     services: ["Family Therapy", "Trauma Treatment", "Support Groups"],
     verified: true,
     rating: 5,
-    district: "Kayonza"
+    district: "Kayonza",
+    urgency: "High"
   },
   {
     id: 7,
@@ -110,7 +117,8 @@ export const servicesData: Service[] = [
     services: ["Mobile Outreach", "Community Education", "Emergency Response"],
     verified: true,
     rating: 4,
-    district: "Nyagatare"
+    district: "Nyagatare",
+    urgency: "Medium"
   },
   {
     id: 8,
@@ -124,7 +132,8 @@ export const servicesData: Service[] = [
     services: ["Case Management", "Health Services", "Education Support"],
     verified: true,
     rating: 4,
-    district: "Muhanga"
+    district: "Muhanga",
+    urgency: "Low"
   },
   {
     id: 9,
@@ -138,7 +147,8 @@ export const servicesData: Service[] = [
     services: ["Legal Representation", "Court Preparation", "Juvenile Justice"],
     verified: true,
     rating: 5,
-    district: "Kicukiro"
+    district: "Kicukiro",
+    urgency: "Critical"
   },
   {
     id: 10,
@@ -152,7 +162,8 @@ export const servicesData: Service[] = [
     services: ["Disability Assessment", "Adaptive Support", "Inclusive Education"],
     verified: true,
     rating: 4,
-    district: "Gisagara"
+    district: "Gisagara",
+    urgency: "High"
   },
   {
     id: 11,
@@ -166,7 +177,8 @@ export const servicesData: Service[] = [
     services: ["Behavioral Therapy", "Substance Abuse Recovery", "Life Skills Training"],
     verified: true,
     rating: 4,
-    district: "Burera"
+    district: "Burera",
+    urgency: "Medium"
   },
   {
     id: 12,
@@ -180,6 +192,7 @@ export const servicesData: Service[] = [
     services: ["School Enrollment", "Educational Advocacy", "Learning Support"],
     verified: true,
     rating: 5,
-    district: "Nyanza"
+    district: "Nyanza",
+    urgency: "Low"
   }
 ];

@@ -51,7 +51,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         email,
         phone,
         website,
-        paid,
+        paid: Number(amount) > 0,
         amount: Number(amount) ?? 0,
         estimatedAttendance: Number(estimatedAttendance) ?? 0,
         lat,

@@ -73,7 +73,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-success border-success">
-                  {directory.paid ? `${addCommas(directory.amount)} Rwf` : `FREE`}
+                  {Number(directory.amount) ? `${addCommas(directory.amount)} Rwf` : `FREE`}
                 </Badge>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
               </div>

@@ -1,16 +1,26 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Menu } from "lucide-react"
+import { getCurrentUser } from "@/lib/getCurrentUser.server"
 
 interface MainLayoutProps {
   children: React.ReactNode
 }
 
-export function MainLayout({ children }: MainLayoutProps) {
+interface AppSidebarProps {
+    id: string
+    email: string
+    name: string
+    role: string
+}
+
+export async function MainLayout({ children }: MainLayoutProps) {
+  const user:AppSidebarProps = await getCurrentUser()
+  
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar />
+        <AppSidebar user={user}/>
         
         <div className="flex-1 flex flex-col">
           {/* Header */}

@@ -120,6 +120,28 @@ export default function DirectoryFormModal({
     }
   }, [modalOpen])
 
+  const handleDetectLocation = () => {
+  if (!navigator.geolocation) {
+    toast.error("Geolocation is not supported by your browser.")
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords
+      const formatted = `${latitude.toFixed(6)},${longitude.toFixed(6)}`
+      setForm((prev) => ({ ...prev, location: formatted }))
+      toast.success("Location detected!")
+    },
+    (error) => {
+      console.error(error)
+      toast.error("Failed to detect location.")
+    },
+    { enableHighAccuracy: true }
+  )
+}
+
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -235,9 +257,10 @@ export default function DirectoryFormModal({
           />
 
           <select name="category" value={form.category} onChange={handleChange} className="col-span-1 border p-2 rounded" required>
+            <option value="">Select Category</option>
             <option value="GOVERNMENT">Government</option>
             <option value="NGO">NGO</option>
-            <option value="PRIVATE">Private</option>
+            <option value="COMMUNITY_BASED">Community Based</option>
           </select>
 
           <select
@@ -261,6 +284,7 @@ export default function DirectoryFormModal({
             onChange={(e) => setForm({ ...form, urgency: e.target.value })}
             className="border p-2 rounded"
           >
+            <option value="">Select Urgency level</option>
             <option value="CRITICAL">Critical</option>
             <option value="HIGH">High</option>
             <option value="MEDIUM">Medium</option>
@@ -351,15 +375,25 @@ export default function DirectoryFormModal({
             className="border p-2 rounded"
           />
 
-          <input
-            type="text"
-            name="location"
-            placeholder="Location (lat,long)"
-            value={form.location}
-            onChange={handleChange}
-            required
-            className="col-span-2 border p-2 rounded"
-          />
+          <div className="col-span-2 flex gap-2">
+            <input
+              type="text"
+              name="location"
+              placeholder="Location (lat,long)"
+              value={form.location}
+              onChange={handleChange}
+              required
+              className="flex-1 border p-2 rounded"
+            />
+            <Button
+              type="button"
+              onClick={handleDetectLocation}
+              className="whitespace-nowrap"
+            >
+              Detect
+            </Button>
+          </div>
+
 
           <input
             type="text"

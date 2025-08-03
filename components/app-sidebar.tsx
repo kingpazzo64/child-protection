@@ -17,14 +17,13 @@ import { usePathname } from "next/navigation"
 import Image from "next/image"
 
 interface AppSidebarProps {
-  user: {
-    id: number
+    id: string
+    email: string
     name: string
     role: string
-  } | null
 }
 
-export function AppSidebar() {
+export function AppSidebar({ user }: AppSidebarProps) {
   const { state } = useSidebar()
   const currentPath = usePathname()
   const isActive = (path: string) => currentPath === path
@@ -37,9 +36,9 @@ export function AppSidebar() {
     { title: "Change Password", url: "/change-password" },
   ]
 
-  // const filteredNavigationItems = navigationItems.filter(
-  //   (item) => !(item.restricted && user?.role === "enumerator")
-  // )
+  const filteredNavigationItems = navigationItems.filter(
+    (item) => !(item.restricted && user?.role.toLowerCase() === "enumerator")
+  )
 
   return (
     <Sidebar
@@ -63,17 +62,17 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* {state !== "collapsed" && user && (
+        {state !== "collapsed" && user && (
           <div className="px-4 py-2 border-b border-sidebar-border text-sm text-sidebar-foreground">
             <p className="font-semibold">{user.name}</p>
             <p className="capitalize text-xs text-muted-foreground">{user.role}</p>
           </div>
-        )} */}
+        )}
 
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="px-2">
-              {navigationItems.map((item) => (
+              {filteredNavigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
