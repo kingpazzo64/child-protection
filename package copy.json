@@ -95,3 +95,4 @@
     "seed": "node prisma/seed.cjs"
   }
 }
+
