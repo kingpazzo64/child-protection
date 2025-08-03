@@ -17,10 +17,12 @@ import { usePathname } from "next/navigation"
 import Image from "next/image"
 
 interface AppSidebarProps {
+  user: {
     id: string
-    email: string
     name: string
+    email: string
     role: string
+  } | null
 }
 
 export function AppSidebar({ user }: AppSidebarProps) {

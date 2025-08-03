@@ -7,15 +7,8 @@ interface MainLayoutProps {
   children: React.ReactNode
 }
 
-interface AppSidebarProps {
-    id: string
-    email: string
-    name: string
-    role: string
-}
-
 export async function MainLayout({ children }: MainLayoutProps) {
-  const user:AppSidebarProps = await getCurrentUser()
+  const user = await getCurrentUser()
   
   return (
     <SidebarProvider>

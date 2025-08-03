@@ -8,9 +8,9 @@ export async function getCurrentUser() {
   if (!session?.user) return null
 
   return {
-    id: session.user.id,
-    name: session.user.name,
-    email: session.user.email,
-    role: session.user.role,
+    id: session?.user?.id ?? '',
+    name: session?.user?.name ?? '',
+    email: session?.user?.email ?? '',
+    role: session?.user?.role ?? '',
   }
 }

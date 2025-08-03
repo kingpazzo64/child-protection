@@ -4,19 +4,8 @@ import { Menu } from "lucide-react"
 import "../dashboard.css";
 import { getCurrentUser } from "@/lib/getCurrentUser.server"
 
-interface MainLayoutProps {
-  children: React.ReactNode
-}
-
-interface AppSidebarProps {
-    id: string
-    email: string
-    name: string
-    role: string
-}
-
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user:AppSidebarProps = await getCurrentUser()
+  const user = await getCurrentUser()
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
