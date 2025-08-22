@@ -5,6 +5,7 @@ import { Cell, Directory, District, Sector, ServiceType, User, Village } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MapPin, Phone, Mail, Star, Share2, Flag, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { urgencyLabels } from '@/types/urgencyLabels'
 
 interface ServiceCardProps {
   directory: {
@@ -63,28 +64,39 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
         <CollapsibleTrigger className="w-full">
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
-              <div className="flex-1 text-left">
+              <div className="flex-1 text-left space-y-1">
                 <CardTitle className="text-lg font-bold text-foreground mb-2">
                   {directory.nameOfOrganization}
                 </CardTitle>
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                  {directory.serviceType.name}
-                </Badge>
+                <div className="flex flex-wrap gap-1">
+                  {directory.services.map((s: any) => (
+                    <Badge
+                      key={s.service.id}
+                      variant="secondary"
+                      className="bg-primary/10 text-primary border-primary/20"
+                    >
+                      {s.service.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-success border-success">
                   {Number(directory.amount) ? `${addCommas(directory.amount)} Rwf` : `FREE`}
                 </Badge>
-                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                />
               </div>
             </div>
           </CardHeader>
+
         </CollapsibleTrigger>
         
         <CollapsibleContent>
           <CardContent className="space-y-4">
             <p className="text-sm text-foreground leading-relaxed">
-              {directory?.description}
+              {urgencyLabels[directory?.urgency ?? 'EXTREME_POVERTY']}
             </p>
             
             <div className="space-y-2 text-sm">

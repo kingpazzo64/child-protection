@@ -5,15 +5,15 @@ generator client {
 }
 
 datasource db {
-  provider          = "postgresql" // Change to "postgresql" if using PostgreSQL
+  provider          = "postgresql"
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 // --- Prisma schema (schema.prisma) ---
-// Updated: Location models separated
+// Updated: Directory <-> ServiceType many-to-many via DirectoryService
 
-// Run: npx prisma migrate dev --name init
+// Run: npx prisma migrate dev --name add-multiple-services
 
 model User {
   id              Int         @id @default(autoincrement())
@@ -27,17 +27,22 @@ model User {
   activationToken String?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  disabled Boolean @default(false)
+  disabled        Boolean     @default(false)
   directories     Directory[] // back-reference to created directories
 
   @@map("users")
 }
 
+
 enum Urgency {
-  CRITICAL
-  HIGH
-  MEDIUM
-  LOW
+  VICTIMS_OF_ABUSE_EXPLOITATION
+  STREET_CHILDREN
+  REFUGEE_CHILDREN
+  CHILDREN_WITH_DISABILITIES
+  EXTREME_POVERTY
+  SEPARATED_OR_ABANDONED
+  CHILDREN_IN_JUSTICE_SYSTEM
+  HARMFUL_PRACTICES
 }
 
 enum Role {
@@ -52,9 +57,9 @@ enum Category {
 }
 
 model ServiceType {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
-  directories Directory[]
+  id          Int                @id @default(autoincrement())
+  name        String             @unique
+  directories DirectoryService[]
 }
 
 model Directory {
@@ -67,28 +72,28 @@ model Directory {
   paid                Boolean   @default(false)
   amount              Float?
   estimatedAttendance Int
-  serviceType         ServiceType @relation(fields: [serviceTypeId], references: [id])
-  serviceTypeId       Int
-  district            District    @relation(fields: [districtId], references: [id])
   districtId          Int
-  sector              Sector      @relation(fields: [sectorId], references: [id])
+  district            District   @relation(fields: [districtId], references: [id])
   sectorId            Int
-  cell                Cell        @relation(fields: [cellId], references: [id])
+  sector              Sector     @relation(fields: [sectorId], references: [id])
   cellId              Int
-  village             Village     @relation(fields: [villageId], references: [id])
+  cell                Cell       @relation(fields: [cellId], references: [id])
   villageId           Int
-  createdBy           User        @relation(fields: [createdById], references: [id])
+  village             Village    @relation(fields: [villageId], references: [id])
   createdById         Int
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-
-  lat                 Float
-  long                Float
-  otherServices       String?
-
+  createdBy           User       @relation(fields: [createdById], references: [id])
+  urgency             Urgency
   description         String?
+  otherServices       String?
+  services            DirectoryService[]
+}
 
-  urgency             Urgency     @default(MEDIUM)
+model DirectoryService {
+  id          Int       @id @default(autoincrement())
+  directory   Directory @relation(fields: [directoryId], references: [id])
+  directoryId Int
+  service     ServiceType @relation(fields: [serviceId], references: [id])
+  serviceId   Int
 }
 
 

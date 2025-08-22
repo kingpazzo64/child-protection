@@ -1,20 +1,22 @@
 // pages/api/directories/[id].ts
-
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getToken } from 'next-auth/jwt'
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-  
+
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
+
   try {
     const {
-      serviceTypeId,
+      serviceTypeIds, // array of service IDs
       nameOfOrganization,
-      description,
       category,
       districtId,
       sectorId,
@@ -23,26 +25,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       email,
       phone,
       website,
-      paid,
       amount,
       estimatedAttendance,
-      location,
       otherServices,
+      description,
       urgency,
     } = await req.json()
 
-    const [latStr, longStr] = location.split(',').map((part: string) => part.trim())
-    const lat = parseFloat(latStr)
-    const long = parseFloat(longStr)
-
     const { id } = await params
 
+    // update directory and reset service relations
     const directory = await prisma.directory.update({
       where: { id: Number(id) },
       data: {
-        serviceTypeId: Number(serviceTypeId),
         nameOfOrganization,
-        description,
         category,
         districtId: Number(districtId),
         sectorId: Number(sectorId),
@@ -54,10 +50,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         paid: Number(amount) > 0,
         amount: Number(amount) ?? 0,
         estimatedAttendance: Number(estimatedAttendance) ?? 0,
-        lat,
-        long,
         otherServices,
-        urgency,
+        description: description ?? '',
+        urgency: urgency ?? 'EXTREME_POVERTY',
+        services: {
+          deleteMany: {}, // remove all old service links
+          create: serviceTypeIds?.map((id: number) => ({
+            service: { connect: { id: Number(id) } },
+          })) || [],
+        },
+      },
+      include: {
+        services: { include: { service: true } },
+        district: true,
+        sector: true,
+        cell: true,
+        village: true,
+        createdBy: true,
       },
     })
 
@@ -65,5 +74,26 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+
+  const { id } = await params
+
+  try {
+    await prisma.directory.delete({ where: { id: Number(id) } })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: 'Failed to delete directory' }, { status: 500 })
   }
 }

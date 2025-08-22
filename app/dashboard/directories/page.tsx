@@ -155,7 +155,7 @@ export default function DirectoryPage() {
               <tr className="bg-gray-100">
                 <th className="text-left p-2">Name</th>
                 <th className="text-left p-2">Category</th>
-                <th className="text-left p-2">Service</th>
+                <th className="text-left p-2">Services</th>
                 <th className="text-left p-2">District</th>
                 <th className="text-left p-2">Email</th>
                 <th className="text-left p-2">Phone</th>
@@ -168,7 +168,9 @@ export default function DirectoryPage() {
                 <tr key={dir.id} className="border-t">
                   <td className="p-2">{dir.nameOfOrganization}</td>
                   <td className="p-2">{dir.category}</td>
-                  <td className="p-2">{dir.serviceType.name}</td>
+                  <td className="p-2">
+                    {dir.services?.map((s) => s.service.name).join(', ')}
+                  </td>
                   <td className="p-2">{dir.district.name}</td>
                   <td className="p-2">{dir.email}</td>
                   <td className="p-2">{dir.phone}</td>
@@ -191,7 +193,7 @@ export default function DirectoryPage() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-4 text-center text-gray-500">
+                  <td colSpan={8} className="p-4 text-center text-gray-500">
                     No directories found.
                   </td>
                 </tr>
@@ -199,6 +201,7 @@ export default function DirectoryPage() {
             </tbody>
           </table>
         </div>
+
       )}
 
       {showModal && (
@@ -207,7 +210,7 @@ export default function DirectoryPage() {
             selected
               ? {
                   id: selected.id,
-                  serviceTypeId: selected.serviceTypeId,
+                  serviceTypeIds: selected.services?.map((s) => s.service.id) ?? [], // ✅ multiple services
                   nameOfOrganization: selected.nameOfOrganization,
                   description: selected.description,
                   category: selected.category,
@@ -226,6 +229,7 @@ export default function DirectoryPage() {
                   lat: selected.lat ?? '',
                   long: selected.long ?? '',
                   otherServices: selected.otherServices ?? '',
+                  urgency: selected.urgency ?? '',
                 }
               : undefined
           }
@@ -236,6 +240,7 @@ export default function DirectoryPage() {
           modalOpen={showModal}
         />
       )}
+
     </div>
   )
 }

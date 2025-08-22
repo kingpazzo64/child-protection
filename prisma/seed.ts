@@ -82,9 +82,7 @@ async function main() {
     })
   }
 
-
-  
-
+  console.log('✅ Service types seeding completed!')
 
 }
 

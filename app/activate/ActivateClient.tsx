@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function ActivateClient() {
   const router = useRouter()
@@ -130,7 +131,16 @@ export default function ActivateClient() {
               {loading ? 'Activating...' : 'Activate'}
             </Button>
           </form>
+          <div className='w-full py-2 text-center'>
+            <Link 
+              className="bg-white px-4 py-2 w-full"
+              href='/login'
+            >
+              Login
+            </Link> </div>
+          
         </CardContent>
+        
       </Card>
     </div>
   )

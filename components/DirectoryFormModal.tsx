@@ -7,7 +7,7 @@ import { Directory, District, ServiceType } from '@/types'
 import { Button } from "@/components/ui/button"
 
 interface Props {
-  initialData?: Partial<Directory>
+  initialData?: Partial<Directory & { serviceTypeIds?: number[] }>
   onClose: () => void
   onSaved: () => void
   serviceTypes: ServiceType[]
@@ -24,9 +24,8 @@ export default function DirectoryFormModal({
   modalOpen,
 }: Props) {
   const [form, setForm] = useState({
-    serviceTypeId: initialData?.serviceTypeId ?? 0,
+    serviceTypeIds: initialData?.serviceTypeIds ?? [], // ✅ multiple services
     nameOfOrganization: initialData?.nameOfOrganization ?? '',
-    description: initialData?.description ?? '',
     category: initialData?.category ?? '',
     districtId: initialData?.districtId ?? 0,
     sectorId: initialData?.sectorId ?? 0,
@@ -38,10 +37,6 @@ export default function DirectoryFormModal({
     paid: initialData?.paid ?? false,
     amount: initialData?.amount ?? 0,
     estimatedAttendance: initialData?.estimatedAttendance ?? 0,
-    location:
-      initialData?.lat && initialData?.long
-        ? `${initialData.lat},${initialData.long}`
-        : '',
     otherServices: initialData?.otherServices ?? '',
     urgency: initialData?.urgency ?? '',
   })
@@ -120,28 +115,6 @@ export default function DirectoryFormModal({
     }
   }, [modalOpen])
 
-  const handleDetectLocation = () => {
-  if (!navigator.geolocation) {
-    toast.error("Geolocation is not supported by your browser.")
-    return
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords
-      const formatted = `${latitude.toFixed(6)},${longitude.toFixed(6)}`
-      setForm((prev) => ({ ...prev, location: formatted }))
-      toast.success("Location detected!")
-    },
-    (error) => {
-      console.error(error)
-      toast.error("Failed to detect location.")
-    },
-    { enableHighAccuracy: true }
-  )
-}
-
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -151,7 +124,15 @@ export default function DirectoryFormModal({
     if (name === 'sectorId') setSectorChanged(true)
     if (name === 'cellId') setCellChanged(true)
 
-    if (type === 'checkbox') {
+    if (type === 'checkbox' && name === 'serviceTypeIds') {
+      const id = Number(value)
+      setForm((prev) => ({
+        ...prev,
+        serviceTypeIds: prev.serviceTypeIds.includes(id)
+          ? prev.serviceTypeIds.filter((sid) => sid !== id)
+          : [...prev.serviceTypeIds, id],
+      }))
+    } else if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
       setForm((prev) => ({ ...prev, [name]: checked }))
     } else {
@@ -161,39 +142,10 @@ export default function DirectoryFormModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!form.location.includes(',')) {
-      toast.error('Location must be in "lat,long" format')
-      return
-    }
-
-    const [latRaw, longRaw] = form.location.split(',').map((s) => s.trim())
-    const lat = Number(latRaw)
-    const long = Number(longRaw)
-
-    if (isNaN(lat) || isNaN(long)) {
-      toast.error('Latitude and longitude must be valid numbers')
-      return
-    }
-
-    if (lat < -90 || lat > 90) {
-      toast.error('Latitude must be between -90 and 90')
-      return
-    }
-
-    if (long < -180 || long > 180) {
-      toast.error('Longitude must be between -180 and 180')
-      return
-    }
-
     setSaving(true)
 
     try {
-      const payload = {
-        ...form,
-        lat,
-        long,
-      }
+      const payload = { ...form }
 
       const method = initialData?.id ? 'PATCH' : 'POST'
       const url = initialData?.id
@@ -221,15 +173,11 @@ export default function DirectoryFormModal({
     }
   }
 
-
   return (
     <Dialog open={modalOpen} onClose={onClose} className="fixed z-50 inset-0 p-4 overflow-y-auto">
-      
-      <div className="bg-white max-w-2xl mx-auto rounded-lg shadow p-6 ">
+      <div className="bg-white max-w-2xl mx-auto rounded-lg shadow p-6">
         <div className='text-right'>
-          <Button onClick={onClose} className="">
-            X
-          </Button>
+          <Button onClick={onClose}>X</Button>
         </div>
         <Dialog.Title className="text-xl font-bold mb-4">
           {initialData ? 'Edit Service' : 'Add Service'}
@@ -246,206 +194,82 @@ export default function DirectoryFormModal({
             className="col-span-2 border p-2 rounded"
           />
 
-          <input
-            type="text"
-            name="description"
-            placeholder="Description"
-            value={form.description}
-            onChange={handleChange}
-            required
-            className="col-span-2 border p-2 rounded"
-          />
-
-          <select name="category" value={form.category} onChange={handleChange} className="col-span-1 border p-2 rounded" required>
+          <select name="category" value={form.category} onChange={handleChange} className="col-span-2 border p-2 rounded" required>
             <option value="">Select Category</option>
             <option value="GOVERNMENT">Government</option>
             <option value="NGO">NGO</option>
             <option value="COMMUNITY_BASED">Community Based</option>
           </select>
 
-          <select
-            name="serviceTypeId"
-            value={form.serviceTypeId}
-            onChange={handleChange}
-            required
-            className="col-span-1 border p-2 rounded"
-          >
-            <option value="">Select Service Type</option>
-            {serviceTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
+          {/* Multiple serviceType checkboxes */}
+          <div className="col-span-2 border p-2 rounded">
+            <label className="font-semibold mb-2 block">Services:</label>
+            <div className="gap-2">
+              {serviceTypes.map((type) => (
+                <label key={type.id} className="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    name="serviceTypeIds"
+                    value={type.id}
+                    checked={form.serviceTypeIds.includes(type.id)}
+                    onChange={handleChange}
+                  />
+                  {type.name}
+                </label>
+              ))}
+            </div>
+          </div>
 
+          {/* Urgency / Beneficiaries */}
           <select
             name="urgency"
             value={form.urgency}
             onChange={(e) => setForm({ ...form, urgency: e.target.value })}
-            className="border p-2 rounded"
+            className="col-span-2 border p-2 rounded"
           >
-            <option value="">Select Urgency level</option>
-            <option value="CRITICAL">Critical</option>
-            <option value="HIGH">High</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="LOW">Low</option>
+            <option value="">Select Type of beneficiaries</option>
+            <option value="VICTIMS_OF_ABUSE_EXPLOITATION">Victims of abuse and exploitation</option>
+            <option value="STREET_CHILDREN">Street children</option>
+            <option value="REFUGEE_CHILDREN">Children in refugees camps or transit centers</option>
+            <option value="CHILDREN_WITH_DISABILITIES">Children with disabilities</option>
+            <option value="EXTREME_POVERTY">Children with extreme poverty</option>
+            <option value="SEPARATED_OR_ABANDONED">Children separated from their parents (or abandonned)</option>
+            <option value="CHILDREN_IN_JUSTICE_SYSTEM">Children in the justice system</option>
+            <option value="HARMFUL_PRACTICES">Children affected by harmful practices like early pregnancies</option>
           </select>
 
-          <select
-            name="districtId"
-            value={form.districtId}
-            onChange={handleChange}
-            required
-            className="border p-2 rounded"
-          >
+          {/* District / Sector / Cell / Village */}
+          <select name="districtId" value={form.districtId} onChange={handleChange} required className="col-span-2 border p-2 rounded">
             <option value="">Select District</option>
-            {districts.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
+            {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
-
-          <select
-            name="sectorId"
-            value={form.sectorId}
-            onChange={handleChange}
-            className="border p-2 rounded"
-          >
+          <select name="sectorId" value={form.sectorId} onChange={handleChange} className="col-span-2 border p-2 rounded">
             <option value="">Select Sector</option>
-            {sectors.map((s: any) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
+            {sectors.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-
-          <select
-            name="cellId"
-            value={form.cellId}
-            onChange={handleChange}
-            className="border p-2 rounded"
-          >
+          <select name="cellId" value={form.cellId} onChange={handleChange} className="col-span-2 border p-2 rounded">
             <option value="">Select Cell</option>
-            {cells.map((c: any) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
+            {cells.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-
-          <select
-            name="villageId"
-            value={form.villageId}
-            onChange={handleChange}
-            className="border p-2 rounded"
-          >
+          <select name="villageId" value={form.villageId} onChange={handleChange} className="col-span-2 border p-2 rounded">
             <option value="">Select Village</option>
-            {villages.map((v: any) => (
-              <option key={v.id} value={v.id}>
-                {v.name}
-              </option>
-            ))}
+            {villages.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
 
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone"
-            value={form.phone}
-            onChange={handleChange}
-            className="col-span-1 border p-2 rounded"
-          />
+          {/* Contact & Other Info */}
+          <input type="text" name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} className="col-span-2 border p-2 rounded" />
+          <input type="text" name="email" placeholder="Email" value={form.email} onChange={handleChange} className="col-span-2 border p-2 rounded" />
+          <input type="text" name="website" placeholder="Website" value={form.website} onChange={handleChange} className="col-span-2 border p-2 rounded" />
+          <input type="text" name="otherServices" placeholder="Other services (optional)" value={form.otherServices} onChange={handleChange} className="col-span-2 border p-2 rounded" />
 
-          <input
-            type="text"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            className="col-span-1 border p-2 rounded"
-          />
-
-          <input
-            type="text"
-            name="website"
-            placeholder="Website"
-            value={form.website}
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
-
-          <div className="col-span-2 flex gap-2">
-            <input
-              type="text"
-              name="location"
-              placeholder="Location (lat,long)"
-              value={form.location}
-              onChange={handleChange}
-              required
-              className="flex-1 border p-2 rounded"
-            />
-            <Button
-              type="button"
-              onClick={handleDetectLocation}
-              className="whitespace-nowrap"
-            >
-              Detect
-            </Button>
-          </div>
-
-
-          <input
-            type="text"
-            name="otherServices"
-            placeholder="Other services (optional)"
-            value={form.otherServices}
-            onChange={handleChange}
-            className="col-span-2 border p-2 rounded"
-          />
-
-          {/* <label className="col-span-1 flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="paid"
-              checked={form.paid}
-              onChange={handleChange}
-            />
-            Paid
-          </label> */}
           <label>Amount Paid</label>
-          <input
-            type="number"
-            name="amount"
-            placeholder="Amount"
-            value={form.amount}
-            onChange={handleChange}
-            className="col-span-2 border p-2 rounded"
-          />
+          <input type="number" name="amount" placeholder="Amount" value={form.amount} onChange={handleChange} className="col-span-2 border p-2 rounded" />
           <label>Estimated Attendance</label>
-          <input
-            type="number"
-            name="estimatedAttendance"
-            placeholder="Estimated Attendance"
-            value={form.estimatedAttendance}
-            onChange={handleChange}
-            className="col-span-2 border p-2 rounded"
-          />
+          <input type="number" name="estimatedAttendance" placeholder="Estimated Attendance" value={form.estimatedAttendance} onChange={handleChange} className="col-span-2 border p-2 rounded" />
 
           <div className="col-span-2 flex justify-end gap-2 mt-4">
-            <Button
-              type="button"
-              onClick={onClose}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </Button>
+            <Button type="button" onClick={onClose} disabled={saving}>Cancel</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
           </div>
         </form>
       </div>

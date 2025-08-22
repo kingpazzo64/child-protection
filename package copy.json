@@ -96,3 +96,9 @@
   }
 }
 
+
+
+
+postgresql://postgres.ymiasfuzvxwiiancaiqg:YourStrongPassword@aws-0-eu-north-1.pooler.supabase.com:5432/postgres
+
+DATABASE_URL="postgresql://postgres.ymiasfuzvxwiiancaiqg:YourStrongPassword@aws-0-eu-north-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
