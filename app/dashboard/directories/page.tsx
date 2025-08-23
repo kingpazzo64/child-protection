@@ -110,9 +110,9 @@ export default function DirectoryPage() {
   return (
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h2 className="text-2xl font-bold">Services</h2>
+        <h2 className="text-2xl font-bold">Service Providers</h2>
         <Button onClick={handleAdd}>
-          Add a service
+          Add a service provider
         </Button>
       </div>
 

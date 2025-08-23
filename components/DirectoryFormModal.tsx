@@ -180,7 +180,7 @@ export default function DirectoryFormModal({
           <Button onClick={onClose}>X</Button>
         </div>
         <Dialog.Title className="text-xl font-bold mb-4">
-          {initialData ? 'Edit Service' : 'Add Service'}
+          {initialData ? 'Edit Service Provider' : 'Add Service Provider'}
         </Dialog.Title>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">

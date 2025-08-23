@@ -32,7 +32,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
   const navigationItems = [
     { title: "Dashboard", url: "/dashboard" },
-    { title: "Directories", url: "/dashboard/directories" },
+    { title: "Service Providers", url: "/dashboard/directories" },
     { title: "Service Types", url: "/dashboard/service-types", restricted: true },
     { title: "Users", url: "/dashboard/users", restricted: true },
     { title: "Change Password", url: "/change-password" },
