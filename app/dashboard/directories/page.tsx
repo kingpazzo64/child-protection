@@ -169,7 +169,7 @@ export default function DirectoryPage() {
                   <td className="p-2">{dir.nameOfOrganization}</td>
                   <td className="p-2">{dir.category}</td>
                   <td className="p-2">
-                    {dir.services?.map((s) => s.service.name).join(', ')}
+                    {dir?.services?.map((s) => s.service.name).join(', ')}
                   </td>
                   <td className="p-2">{dir.district.name}</td>
                   <td className="p-2">{dir.email}</td>
