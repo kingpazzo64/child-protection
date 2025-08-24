@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import SearchSection from "@/components/SearchSection";
-import MapSection from "@/components/MapSection";
 import ServiceCard from "@/components/ServiceCard";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
