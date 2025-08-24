@@ -44,10 +44,17 @@ export type District = {
   name: string
 }
 
+export type DirectoryService = {
+  id: number
+  directory: Directory
+  directoryId: number
+  service: ServiceType
+  serviceId: number
+}
+
 export type Directory = {
   id: number
   nameOfOrganization: string
-  description: string
   category: string
   email: string
   phone: string
@@ -57,8 +64,7 @@ export type Directory = {
   estimatedAttendance: number
   createdAt: string | Date
 
-  serviceTypeId: number
-  serviceType: ServiceType
+  services: DirectoryService[]
 
   districtId: number
   district: District
@@ -75,8 +81,6 @@ export type Directory = {
   createdById: number
   createdBy: User
 
-  lat: number
-  long: number
   otherServices?: string
 
   urgency?: string

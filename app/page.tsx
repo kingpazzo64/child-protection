@@ -86,7 +86,7 @@ const Index = () => {
     }
 
     if (serviceTypeFilter) {
-      results = results.filter(dir => String(dir.serviceTypeId) === serviceTypeFilter)
+      results = results.filter(dir => dir.services.some((s) => String(s.service.id) === serviceTypeFilter))
     }
 
     setFiltered(results)

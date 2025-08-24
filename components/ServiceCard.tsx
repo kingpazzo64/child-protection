@@ -8,43 +8,7 @@ import { useState } from "react";
 import { urgencyLabels } from '@/types/urgencyLabels'
 
 interface ServiceCardProps {
-  directory: {
-    id: number
-      nameOfOrganization: string
-      description: string
-      category: string
-      email: string
-      phone: string
-      website?: string | null
-      paid: boolean
-      amount?: number | null
-      estimatedAttendance: number
-      createdAt: string | Date
-    
-      serviceTypeId: number
-      serviceType: ServiceType
-    
-      districtId: number
-      district: District
-    
-      sectorId: number
-      sector: Sector
-    
-      cellId: number
-      cell: Cell
-    
-      villageId: number
-      village: Village
-    
-      createdById: number
-      createdBy: User
-    
-      lat: number
-      long: number
-      otherServices?: string
-
-      urgency?:string
-  };
+  directory: Directory,
 }
 
 const ServiceCard = ({ directory }: ServiceCardProps) => {

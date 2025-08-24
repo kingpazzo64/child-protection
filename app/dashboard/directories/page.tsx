@@ -79,7 +79,7 @@ export default function DirectoryPage() {
     }
 
     if (serviceTypeFilter) {
-      results = results.filter(dir => String(dir.serviceTypeId) === serviceTypeFilter)
+      results = results.filter(dir => dir.services.some((s) => String(s.service.id) === serviceTypeFilter))
     }
 
     setFiltered(results)
@@ -212,7 +212,6 @@ export default function DirectoryPage() {
                   id: selected.id,
                   serviceTypeIds: selected.services?.map((s) => s.service.id) ?? [], // ✅ multiple services
                   nameOfOrganization: selected.nameOfOrganization,
-                  description: selected.description,
                   category: selected.category,
                   districtId: selected.districtId,
                   sectorId: selected.sectorId,
@@ -226,8 +225,6 @@ export default function DirectoryPage() {
                   estimatedAttendance: selected.estimatedAttendance,
                   createdById: selected.createdById,
                   createdAt: selected.createdAt,
-                  lat: selected.lat ?? '',
-                  long: selected.long ?? '',
                   otherServices: selected.otherServices ?? '',
                   urgency: selected.urgency ?? '',
                 }
