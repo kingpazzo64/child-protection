@@ -7,6 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "prisma:generate2": "prisma generate",
+    "prisma:migrate2": "prisma migrate deploy",
+    "prisma:seed": "ts-node prisma/seed.cjs",
+    "postinstall2": "prisma generate && prisma migrate deploy && prisma db seed",
+
 
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate reset --force",
