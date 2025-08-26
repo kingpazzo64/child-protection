@@ -41,7 +41,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
                       {s.service.name}
                     </Badge>
                   ))}
-                </div>
+                </div> 
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-success border-success">
