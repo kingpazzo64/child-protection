@@ -37,7 +37,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
                       key={s.service.id}
                       variant="secondary"
                       className="bg-primary/10 text-primary border-primary/20"
-                    >
+                    > 
                       {s.service.name}
                     </Badge>
                   ))}
