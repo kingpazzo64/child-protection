@@ -1,4 +1,5 @@
 // types/index.ts
+
 export type Role = 'ADMIN' | 'ENUMERATOR'
 
 export type User = {
@@ -14,6 +15,13 @@ export type User = {
 export type ServiceType = {
   id: number
   name: string
+}
+
+// ✅ New BeneficiaryType
+export type BeneficiaryType = {
+  id: number
+  name: string
+  description?: string | null
 }
 
 export type Tag = {
@@ -46,10 +54,29 @@ export type District = {
 
 export type DirectoryService = {
   id: number
-  directory: Directory
   directoryId: number
-  service: ServiceType
   serviceId: number
+  service: ServiceType
+}
+
+export type DirectoryBeneficiary = {
+  id: number
+  directoryId: number
+  beneficiaryId: number
+  beneficiary: BeneficiaryType
+}
+
+export type DirectoryLocation = {
+  id: number
+  directoryId: number
+  districtId: number
+  district: District
+  sectorId: number
+  sector: Sector
+  cellId: number
+  cell: Cell
+  villageId: number
+  village: Village
 }
 
 export type Directory = {
@@ -60,28 +87,14 @@ export type Directory = {
   phone: string
   website?: string | null
   paid: boolean
-  amount?: number | null
-  estimatedAttendance: number
   createdAt: string | Date
 
   services: DirectoryService[]
-
-  districtId: number
-  district: District
-
-  sectorId: number
-  sector: Sector
-
-  cellId: number
-  cell: Cell
-
-  villageId: number
-  village: Village
+  beneficiaries: DirectoryBeneficiary[]
+  locations: DirectoryLocation[]
 
   createdById: number
   createdBy: User
 
   otherServices?: string
-
-  urgency?: string
 }

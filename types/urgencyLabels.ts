@@ -1,11 +1,11 @@
 // urgencyLabels.ts
 export const urgencyLabels: Record<string, string> = {
-  VICTIMS_OF_ABUSE_EXPLOITATION: 'Victims of abuse and exploitation: Children subjected to physical, sexual, emotional abuse, or neglect.',
-  STREET_CHILDREN: 'Street children',
-  REFUGEE_CHILDREN: 'Children in refugees camps or transit centers',
-  CHILDREN_WITH_DISABILITIES: 'Children with disabilities',
-  EXTREME_POVERTY: 'Children with extreme poverty',
-  SEPARATED_OR_ABANDONED: 'Children separated from their parents (or abandoned)',
-  CHILDREN_IN_JUSTICE_SYSTEM: 'Children in the justice system',
-  HARMFUL_PRACTICES: 'Children affected by harmful practices like early pregnancies',
+  CP_SURVIVOR: 'Survivor of CP violence/abuse (non gender based violence)',
+  STREET_CONNECTED: 'Street- connected children',
+  REFUGEE: 'Refugee children',
+  ASYLUM_SEEKER: 'Asylum seeker children',
+  DISABLED: 'Children with disabilities',
+  UNACCOMPANIED_SEPARATED: 'Unaccompanied and separated children',
+  IN_CONFLICT_WITH_LAW: 'Children in conflict with law',
+  GBV_SURVIVOR: 'GBV survivor (gender based violence,  early pregnancies...)',
 }

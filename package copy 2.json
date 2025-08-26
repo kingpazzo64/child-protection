@@ -5,18 +5,18 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js",
+    "start": "next start",
     "lint": "next lint",
     "prisma:generate2": "prisma generate",
     "prisma:migrate2": "prisma migrate deploy",
     "prisma:seed": "ts-node prisma/seed.cjs",
     "postinstall2": "prisma generate && prisma migrate deploy && prisma db seed",
+
+
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate reset --force",
+    
     "postinstall": "prisma generate && prisma migrate reset --force"
-  },
-  "engines": {
-    "node": "22.x"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.6",
@@ -53,7 +53,6 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
-    "express": "^5.1.0",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.526.0",

@@ -6,7 +6,7 @@ import SearchSection from "@/components/SearchSection";
 import ServiceCard from "@/components/ServiceCard";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
-import { Directory, District, ServiceType } from '@/types'
+import { Directory, District, ServiceType, BeneficiaryType } from '@/types'
 import { servicesData, Service } from "@/data/services";
 import "./custom.css";
 import { toast } from 'react-hot-toast'
@@ -35,6 +35,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true)
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
   const [districts, setDistricts] = useState<District[]>([])
+  const [beneficiaryTypes, setBeneficiaryTypes] = useState<BeneficiaryType[]>([])
   const [districtFilter, setDistrictFilter] = useState('')
   const [serviceTypeFilter, setServiceTypeFilter] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
@@ -48,19 +49,22 @@ const Index = () => {
     const fetchData = async () => {
     setLoading(true)
     try {
-      const [dirRes, svcRes, distRes] = await Promise.all([
+      const [dirRes, svcRes, distRes, benfRes] = await Promise.all([
         fetch('/api/directories'),
         fetch('/api/service-types'),
         fetch('/api/districts'),
+        fetch('/api/beneficiary-types'),
       ])
 
       const dirJson = await dirRes.json()
       const svcJson = await svcRes.json()
       const distJson = await distRes.json()
+      const beneJson = await benfRes.json()
 
       setDirectories(dirJson.directories)
       setServiceTypes(svcJson.types)
       setDistricts(distJson)
+      setBeneficiaryTypes(beneJson.types)
     } catch (err) {
       toast.error('Failed to load data')
     } finally {
@@ -81,8 +85,11 @@ const Index = () => {
     }
 
     if (districtFilter) {
-      results = results.filter(dir => String(dir.districtId) === districtFilter)
+      results = results.filter(dir =>
+        dir.locations?.some(loc => String(loc.districtId) === districtFilter)
+      )
     }
+
 
     if (serviceTypeFilter) {
       results = results.filter(dir => dir.services.some((s) => String(s.service.id) === serviceTypeFilter))
@@ -100,11 +107,17 @@ const Index = () => {
       let filtered = [...directories];
 
       if (district !== "All Districts") {
-        filtered = filtered.filter((dir) => dir.district.name === district);
+
+        filtered = filtered.filter(dir =>
+          dir.locations?.some(loc => String(loc.district.name) === district)
+        )
+
       }
 
       if (sector && sector !== "All Sectors") {
-        filtered = filtered.filter((dir) => dir.sector.name === sector);
+        filtered = filtered.filter(dir =>
+          dir.locations?.some(loc => String(loc.sector.name) === sector)
+        )
       }
 
       if (service && service !== "All service types") {
@@ -115,8 +128,10 @@ const Index = () => {
         );
       }
 
-      if (urgency !== "All Beneficiaries") {
-        filtered = filtered.filter((dir) => dir.urgency === urgency.toUpperCase());
+      if (urgency && urgency !== "All Beneficiaries") {
+        filtered = filtered.filter(dir =>
+          dir.beneficiaries?.some(b => b.beneficiary.name === urgency)
+        )
       }
 
       setFiltered(filtered);
@@ -130,6 +145,7 @@ const Index = () => {
         onFilter={handleFilter}
         districts={districts}
         serviceTypes={serviceTypes}
+        beneficiaryTypes={beneficiaryTypes}
         directories={directories}
       />
       

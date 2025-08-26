@@ -1,26 +1,25 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Cell, Directory, District, Sector, ServiceType, User, Village } from '@/types'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Directory } from '@/types';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Share2, Flag, ChevronDown } from "lucide-react";
+import { MapPin, Phone, Mail, Share2, Flag, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { urgencyLabels } from '@/types/urgencyLabels'
+import { urgencyLabels } from '@/types/urgencyLabels';
 
 interface ServiceCardProps {
-  directory: Directory,
+  directory: Directory;
 }
 
 const ServiceCard = ({ directory }: ServiceCardProps) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  function addCommas(input:Number | null | undefined) {
+  function addCommas(input: number | null | undefined) {
     input = input ?? 0;
     const [intPart, decPart] = input.toString().split('.');
     const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return decPart ? `${withCommas}.${decPart}` : withCommas;
   }
-
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-primary">
@@ -33,7 +32,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
                   {directory.nameOfOrganization}
                 </CardTitle>
                 <div className="flex flex-wrap gap-1">
-                  {directory.services.map((s: any) => (
+                  {directory.services?.map((s: any) => (
                     <Badge
                       key={s.service.id}
                       variant="secondary"
@@ -46,7 +45,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-success border-success">
-                  {Number(directory.amount) ? `${addCommas(directory.amount)} Rwf` : `FREE`}
+                  {Boolean(directory.paid) ? `PAID` : `FREE`}
                 </Badge>
                 <ChevronDown
                   className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
@@ -54,42 +53,64 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
               </div>
             </div>
           </CardHeader>
-
         </CollapsibleTrigger>
-        
+
         <CollapsibleContent>
           <CardContent className="space-y-4">
-            <p className="text-sm text-foreground leading-relaxed">
-              {urgencyLabels[directory?.urgency ?? 'EXTREME_POVERTY']}
-            </p>
-            
-            <div className="space-y-2 text-sm">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-foreground">
-                  {`${directory.district.name} - ${directory.sector.name} - ${directory.cell.name} - ${directory.village.name}`}
-                </span>
+            {/* Beneficiaries */}
+            {directory.beneficiaries?.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-foreground mb-1">Beneficiaries:</p>
+                <div className="flex flex-wrap gap-2">
+                  {directory.beneficiaries.map((b) => (
+                    <Badge key={b.beneficiary.id} variant="outline" className="text-xs border-muted">
+                      {urgencyLabels[b.beneficiary.name] ?? b.beneficiary.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-foreground">{directory.phone}</span>
+            )}
+
+            {/* Locations */}
+            {directory.locations?.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-foreground mb-1">Locations:</p>
+                <div className="space-y-1 text-sm">
+                  {directory.locations.map((loc, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">
+                        {`${loc.district.name} - ${loc.sector.name} - ${loc.cell.name} - ${loc.village.name}`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-foreground">{directory.email}</span>
-              </div>
+            )}
+
+            {/* Contact */}
+            <div className="space-y-1 text-sm mt-2">
+              {directory.phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{directory.phone}</span>
+                </div>
+              )}
+              {directory.email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{directory.email}</span>
+                </div>
+              )}
             </div>
-            
-            { directory.otherServices && (
+
+            {/* Other Services */}
+            {directory.otherServices && (
               <div className="pt-2">
-                <p className="text-sm font-medium text-foreground mb-2">Services Offered:</p>
+                <p className="text-sm font-medium text-foreground mb-2">Other Services:</p>
                 <div className="flex flex-wrap gap-1">
                   {directory.otherServices.split(';').map((service, index) => (
-                    <Badge 
-                      key={index} 
-                      variant="outline" 
-                      className="text-xs text-muted-foreground border-muted"
-                    >
+                    <Badge key={index} variant="outline" className="text-xs text-muted-foreground border-muted">
                       {service}
                     </Badge>
                   ))}
@@ -97,6 +118,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
               </div>
             )}
 
+            {/* Actions */}
             <div className="flex justify-between items-center pt-3 border-t border-border">
               <Button variant="link" className="p-0 h-auto text-primary hover:text-primary/80">
                 <Share2 className="w-3 h-3 mr-1" />

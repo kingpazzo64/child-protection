@@ -15,65 +15,79 @@ export async function PATCH(
 
   try {
     const {
-      serviceTypeIds, // array of service IDs
+      serviceTypeIds,
+      beneficiaryTypeIds,
+      locations,
       nameOfOrganization,
       category,
-      districtId,
-      sectorId,
-      cellId,
-      villageId,
       email,
       phone,
       website,
-      amount,
-      estimatedAttendance,
       otherServices,
       description,
-      urgency,
+      paid, // <-- get from frontend
     } = await req.json()
 
     const { id } = await params
 
-    // update directory and reset service relations
-    const directory = await prisma.directory.update({
+    // Update directory basic fields
+    const updatedDirectory = await prisma.directory.update({
       where: { id: Number(id) },
       data: {
         nameOfOrganization,
         category,
-        districtId: Number(districtId),
-        sectorId: Number(sectorId),
-        cellId: Number(cellId),
-        villageId: Number(villageId),
         email,
         phone,
         website,
-        paid: Number(amount) > 0,
-        amount: Number(amount) ?? 0,
-        estimatedAttendance: Number(estimatedAttendance) ?? 0,
+        paid: Boolean(paid), // <-- use actual user selection
         otherServices,
-        description: description ?? '',
-        urgency: urgency ?? 'EXTREME_POVERTY',
+
+        // Reset services
         services: {
-          deleteMany: {}, // remove all old service links
-          create: serviceTypeIds?.map((id: number) => ({
-            service: { connect: { id: Number(id) } },
+          deleteMany: {},
+          create: serviceTypeIds?.map((sid: number) => ({
+            service: { connect: { id: Number(sid) } },
+          })) || [],
+        },
+
+        // Reset beneficiaries
+        beneficiaries: {
+          deleteMany: {},
+          create: beneficiaryTypeIds?.map((bid: number) => ({
+            beneficiary: { connect: { id: Number(bid) } },
+          })) || [],
+        },
+
+        // Reset locations
+        locations: {
+          deleteMany: {},
+          create: locations?.map((loc: any) => ({
+            district: { connect: { id: Number(loc.districtId) } },
+            sector: { connect: { id: Number(loc.sectorId) } },
+            cell: { connect: { id: Number(loc.cellId) } },
+            village: { connect: { id: Number(loc.villageId) } },
           })) || [],
         },
       },
       include: {
         services: { include: { service: true } },
-        district: true,
-        sector: true,
-        cell: true,
-        village: true,
+        beneficiaries: { include: { beneficiary: true } },
+        locations: {
+          include: {
+            district: true,
+            sector: true,
+            cell: true,
+            village: true,
+          },
+        },
         createdBy: true,
       },
     })
 
-    return NextResponse.json(directory)
+    return NextResponse.json(updatedDirectory)
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to update directory' }, { status: 500 })
   }
 }
 

@@ -1,4 +1,4 @@
-// app/api/directories/route.ts
+// pages/api/directories/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getToken } from 'next-auth/jwt'
@@ -9,15 +9,19 @@ export async function GET(req: NextRequest) {
     const directories = await prisma.directory.findMany({
       where: token && token.role !== 'ADMIN' ? { createdById: Number(token.id) } : {},
       include: {
-        services: { include: { service: true } }, // load multiple services
-        district: true,
-        sector: true,
-        cell: true,
-        village: true,
+        services: { include: { service: true } },
+        beneficiaries: { include: { beneficiary: true } },
+        locations: {
+          include: {
+            district: true,
+            sector: true,
+            cell: true,
+            village: true,
+          },
+        },
         createdBy: true,
-      }
+      },
     })
-
     return NextResponse.json({ directories })
   } catch (err) {
     console.error(err)
@@ -34,21 +38,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const {
-      serviceTypeIds, // array of numbers
+      serviceTypeIds,
+      beneficiaryTypeIds,
+      locations,
       nameOfOrganization,
       category,
-      districtId,
-      sectorId,
-      cellId,
-      villageId,
       email,
       phone,
       website,
-      amount,
-      estimatedAttendance,
       otherServices,
       description,
-      urgency,
+      paid, // <-- front-end radio button
     } = await req.json()
 
     const directory = await prisma.directory.create({
@@ -58,29 +58,45 @@ export async function POST(req: NextRequest) {
         email,
         phone,
         website,
-        paid: Number(amount) > 0,
-        amount: Number(amount) ?? 0,
-        estimatedAttendance: Number(estimatedAttendance) ?? 0,
+        paid: Boolean(paid), // save correctly
         otherServices,
-        description: description ?? '',
-        urgency: urgency ?? 'EXTREME_POVERTY', // default urgency
         createdById: Number(token.id),
-        districtId: Number(districtId),
-        sectorId: Number(sectorId),
-        cellId: Number(cellId),
-        villageId: Number(villageId),
+
+        // Services
         services: {
-          create: serviceTypeIds?.map((id: number) => ({
-            service: { connect: { id: Number(id) } },
+          create: serviceTypeIds?.map((sid: number) => ({
+            service: { connect: { id: Number(sid) } },
+          })) || [],
+        },
+
+        // Beneficiaries
+        beneficiaries: {
+          create: beneficiaryTypeIds?.map((bid: number) => ({
+            beneficiary: { connect: { id: Number(bid) } },
+          })) || [],
+        },
+
+        // Locations
+        locations: {
+          create: locations?.map((loc: any) => ({
+            district: { connect: { id: Number(loc.districtId) } },
+            sector: { connect: { id: Number(loc.sectorId) } },
+            cell: { connect: { id: Number(loc.cellId) } },
+            village: { connect: { id: Number(loc.villageId) } },
           })) || [],
         },
       },
       include: {
         services: { include: { service: true } },
-        district: true,
-        sector: true,
-        cell: true,
-        village: true,
+        beneficiaries: { include: { beneficiary: true } },
+        locations: {
+          include: {
+            district: true,
+            sector: true,
+            cell: true,
+            village: true,
+          },
+        },
         createdBy: true,
       },
     })

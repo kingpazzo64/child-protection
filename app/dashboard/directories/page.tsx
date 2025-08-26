@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import DirectoryFormModal from '@/components/DirectoryFormModal'
-import { Directory, District, ServiceType } from '@/types'
+import { Directory, District, ServiceType, BeneficiaryType } from '@/types'
 import { Button } from "@/components/ui/button"
-
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -29,6 +28,7 @@ export default function DirectoryPage() {
   const [showModal, setShowModal] = useState(false)
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
   const [districts, setDistricts] = useState<District[]>([])
+  const [beneficiaryTypes, setBeneficiaryTypes] = useState<BeneficiaryType[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [districtFilter, setDistrictFilter] = useState('')
   const [serviceTypeFilter, setServiceTypeFilter] = useState('')
@@ -42,19 +42,22 @@ export default function DirectoryPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [dirRes, svcRes, distRes] = await Promise.all([
+      const [dirRes, svcRes, distRes, benfRes] = await Promise.all([
         fetch('/api/directories'),
         fetch('/api/service-types'),
         fetch('/api/districts'),
+        fetch('/api/beneficiary-types'),
       ])
 
       const dirJson = await dirRes.json()
       const svcJson = await svcRes.json()
       const distJson = await distRes.json()
+      const beneJson = await benfRes.json()
 
       setDirectories(dirJson.directories)
       setServiceTypes(svcJson.types)
       setDistricts(distJson)
+      setBeneficiaryTypes(beneJson.types)
     } catch (err) {
       toast.error('Failed to load data')
     } finally {
@@ -75,11 +78,15 @@ export default function DirectoryPage() {
     }
 
     if (districtFilter) {
-      results = results.filter(dir => String(dir.districtId) === districtFilter)
+      results = results.filter(dir =>
+        dir.locations?.some(loc => String(loc.district.id) === districtFilter)
+      )
     }
 
     if (serviceTypeFilter) {
-      results = results.filter(dir => dir.services.some((s) => String(s.service.id) === serviceTypeFilter))
+      results = results.filter(dir =>
+        dir.services?.some((s) => String(s.service.id) === serviceTypeFilter)
+      )
     }
 
     setFiltered(results)
@@ -109,13 +116,15 @@ export default function DirectoryPage() {
 
   return (
     <div className="p-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <h2 className="text-2xl font-bold">Service Providers</h2>
-        <Button onClick={handleAdd}>
-          Add a service provider
-        </Button>
+        <div className="self-start sm:self-auto">
+          <Button onClick={handleAdd}>Add a service provider</Button>
+        </div>
       </div>
 
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
         <input
           type="text"
@@ -146,6 +155,7 @@ export default function DirectoryPage() {
         </select>
       </div>
 
+      {/* Table */}
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -156,7 +166,8 @@ export default function DirectoryPage() {
                 <th className="text-left p-2">Name</th>
                 <th className="text-left p-2">Category</th>
                 <th className="text-left p-2">Services</th>
-                <th className="text-left p-2">District</th>
+                <th className="text-left p-2">Beneficiaries</th>
+                <th className="text-left p-2">Locations</th>
                 <th className="text-left p-2">Email</th>
                 <th className="text-left p-2">Phone</th>
                 <th className="text-left p-2">Created By</th>
@@ -169,77 +180,77 @@ export default function DirectoryPage() {
                   <td className="p-2">{dir.nameOfOrganization}</td>
                   <td className="p-2">{dir.category}</td>
                   <td className="p-2">
-                    {dir?.services?.map((s) => s.service.name).join(', ')}
+                    {dir.services
+                      ?.map(s => s.service.name)
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .join(', ')}
                   </td>
-                  <td className="p-2">{dir.district.name}</td>
+                  <td className="p-2">
+                    {dir.beneficiaries
+                      ?.map(b => b.beneficiary.name)
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .join(', ')}
+                  </td>
+                  <td className="p-2">
+                    {dir.locations
+                      ?.map(loc =>
+                        `${loc.district.name}${loc.sector ? ` > ${loc.sector.name}` : ''}${loc.cell ? ` > ${loc.cell.name}` : ''}${loc.village ? ` > ${loc.village.name}` : ''}`
+                      )
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .join(' | ')}
+                  </td>
                   <td className="p-2">{dir.email}</td>
                   <td className="p-2">{dir.phone}</td>
                   <td className="p-2">{dir.createdBy?.name ?? '—'}</td>
                   <td className="p-2 space-x-2">
-                    <button
-                      onClick={() => handleEdit(dir)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(dir.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Delete
-                    </button>
+                    <button onClick={() => handleEdit(dir)} className="text-blue-600 hover:underline">Edit</button>
+                    <button onClick={() => handleDelete(dir.id)} className="text-red-600 hover:underline">Delete</button>
                   </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="p-4 text-center text-gray-500">
-                    No directories found.
-                  </td>
+                  <td colSpan={9} className="p-4 text-center text-gray-500">No directories found.</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-
       )}
 
+      {/* Modal */}
       {showModal && (
         <DirectoryFormModal
           initialData={
             selected
               ? {
                   id: selected.id,
-                  serviceTypeIds: selected.services?.map((s) => s.service.id) ?? [], // ✅ multiple services
+                  serviceTypeIds: selected.services?.map((s) => s.service.id) ?? [],
+                  beneficiaryTypeIds: selected.beneficiaries?.map((b) => b.beneficiary.id) ?? [],
+                  locations: selected.locations?.map(loc => ({
+                    districtId: loc.districtId,
+                    sectorId: loc.sectorId,
+                    cellId: loc.cellId,
+                    villageId: loc.villageId,
+                  })),
                   nameOfOrganization: selected.nameOfOrganization,
                   category: selected.category,
-                  districtId: selected.districtId,
-                  sectorId: selected.sectorId,
-                  cellId: selected.cellId,
-                  villageId: selected.villageId,
                   email: selected.email,
                   phone: selected.phone,
                   website: selected.website ?? '',
                   paid: selected.paid,
-                  amount: selected.amount ?? 0,
-                  estimatedAttendance: selected.estimatedAttendance,
-                  createdById: selected.createdById,
-                  createdAt: selected.createdAt,
                   otherServices: selected.otherServices ?? '',
-                  urgency: selected.urgency ?? '',
                 }
               : undefined
           }
           onClose={() => setShowModal(false)}
           onSaved={fetchData}
           serviceTypes={serviceTypes}
+          beneficiaryTypes={beneficiaryTypes}
           districts={districts}
           modalOpen={showModal}
         />
       )}
-
     </div>
   )
 }
-
-

@@ -10,11 +10,6 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-// --- Prisma schema (schema.prisma) ---
-// Updated: Directory <-> ServiceType many-to-many via DirectoryService
-
-// Run: npx prisma migrate dev --name add-multiple-services
-
 model User {
   id              Int         @id @default(autoincrement())
   name            String
@@ -28,21 +23,9 @@ model User {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   disabled        Boolean     @default(false)
-  directories     Directory[] // back-reference to created directories
+  directories     Directory[] // directories created by this user
 
   @@map("users")
-}
-
-
-enum Urgency {
-  VICTIMS_OF_ABUSE_EXPLOITATION
-  STREET_CHILDREN
-  REFUGEE_CHILDREN
-  CHILDREN_WITH_DISABILITIES
-  EXTREME_POVERTY
-  SEPARATED_OR_ABANDONED
-  CHILDREN_IN_JUSTICE_SYSTEM
-  HARMFUL_PRACTICES
 }
 
 enum Role {
@@ -62,70 +45,93 @@ model ServiceType {
   directories DirectoryService[]
 }
 
-model Directory {
-  id                  Int       @id @default(autoincrement())
-  nameOfOrganization  String
-  category            String
-  email               String
-  phone               String
-  website             String?
-  paid                Boolean   @default(false)
-  amount              Float?
-  estimatedAttendance Int
-  districtId          Int
-  district            District   @relation(fields: [districtId], references: [id])
-  sectorId            Int
-  sector              Sector     @relation(fields: [sectorId], references: [id])
-  cellId              Int
-  cell                Cell       @relation(fields: [cellId], references: [id])
-  villageId           Int
-  village             Village    @relation(fields: [villageId], references: [id])
-  createdById         Int
-  createdBy           User       @relation(fields: [createdById], references: [id])
-  urgency             Urgency
-  description         String?
-  otherServices       String?
-  services            DirectoryService[]
+// --- Beneficiary Type CRUD
+model BeneficiaryType {
+  id          Int                     @id @default(autoincrement())
+  name        String                  @unique
+  description String?
+  directories DirectoryBeneficiary[]
 }
 
+// Junction table for Directory <-> BeneficiaryType
+model DirectoryBeneficiary {
+  id             Int             @id @default(autoincrement())
+  directory      Directory       @relation(fields: [directoryId], references: [id])
+  directoryId    Int
+  beneficiary    BeneficiaryType @relation(fields: [beneficiaryId], references: [id])
+  beneficiaryId  Int
+}
+
+// --- Directory model
+model Directory {
+  id                 Int                    @id @default(autoincrement())
+  nameOfOrganization String
+  category           String
+  email              String
+  phone              String
+  website            String?
+  paid               Boolean                @default(false)
+  otherServices      String?
+  services           DirectoryService[]
+  createdById        Int
+  createdBy          User                   @relation(fields: [createdById], references: [id])
+  locations          DirectoryLocation[]    // multiple locations
+  beneficiaries      DirectoryBeneficiary[] // multiple beneficiaries
+}
+
+// Junction table for Directory <-> ServiceType
 model DirectoryService {
-  id          Int       @id @default(autoincrement())
-  directory   Directory @relation(fields: [directoryId], references: [id])
+  id          Int        @id @default(autoincrement())
+  directory   Directory  @relation(fields: [directoryId], references: [id])
   directoryId Int
   service     ServiceType @relation(fields: [serviceId], references: [id])
   serviceId   Int
 }
 
+// --- Junction table for Directory <-> Location
+model DirectoryLocation {
+  id          Int       @id @default(autoincrement())
+  directory   Directory @relation(fields: [directoryId], references: [id])
+  directoryId Int
+  district    District  @relation(fields: [districtId], references: [id])
+  districtId  Int
+  sector      Sector    @relation(fields: [sectorId], references: [id])
+  sectorId    Int
+  cell        Cell      @relation(fields: [cellId], references: [id])
+  cellId      Int
+  village     Village   @relation(fields: [villageId], references: [id])
+  villageId   Int
+}
 
 model District {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
+  id          Int                  @id @default(autoincrement())
+  name        String               @unique
   sectors     Sector[]
-  directories Directory[]
+  directories DirectoryLocation[]
 }
 
 model Sector {
-  id          Int         @id @default(autoincrement())
+  id          Int                  @id @default(autoincrement())
   name        String
-  district    District    @relation(fields: [districtId], references: [id])
+  district    District             @relation(fields: [districtId], references: [id])
   districtId  Int
   cells       Cell[]
-  directories Directory[]
+  directories DirectoryLocation[]
 }
 
 model Cell {
-  id          Int         @id @default(autoincrement())
+  id          Int                  @id @default(autoincrement())
   name        String
-  sector      Sector      @relation(fields: [sectorId], references: [id])
+  sector      Sector               @relation(fields: [sectorId], references: [id])
   sectorId    Int
   villages    Village[]
-  directories Directory[]
+  directories DirectoryLocation[]
 }
 
 model Village {
-  id          Int         @id @default(autoincrement())
+  id          Int                  @id @default(autoincrement())
   name        String
-  cell        Cell        @relation(fields: [cellId], references: [id])
+  cell        Cell                 @relation(fields: [cellId], references: [id])
   cellId      Int
-  directories Directory[]
+  directories DirectoryLocation[]
 }
