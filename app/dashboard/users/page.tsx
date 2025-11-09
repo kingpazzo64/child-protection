@@ -13,9 +13,11 @@ export default function UsersPage() {
     phone: '',
     idNumber: '',
     role: 'enumerator',
+    districtId: '',
   })
 
   const [users, setUsers] = useState<any[]>([])
+  const [districts, setDistricts] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState<number | null>(null)
   const [editingUser, setEditingUser] = useState<any | null>(null)
@@ -41,7 +43,24 @@ export default function UsersPage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setForm({ ...form, [name]: value })
+    // Reset districtId when role changes away from DISTRICT_CPO
+    if (name === 'role' && value !== 'district_cpo') {
+      setForm(prev => ({ ...prev, districtId: '' }))
+    }
+  }
+
+  const fetchDistricts = async () => {
+    try {
+      const res = await fetch('/api/districts')
+      if (res.ok) {
+        const data = await res.json()
+        setDistricts(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch districts:', err)
+    }
   }
 
   const handleResend = async (id: number, email: string) => {
@@ -71,7 +90,7 @@ export default function UsersPage() {
     const data = await res.json()
     if (res.ok) {
       toast.success('User invited successfully!')
-      setForm({ name: '', email: '', phone: '', idNumber: '', role: 'enumerator' })
+      setForm({ name: '', email: '', phone: '', idNumber: '', role: 'enumerator', districtId: '' })
       fetchUsers()
     } else {
       toast.error(data.error || 'Failed to invite user.')
@@ -88,6 +107,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers()
+    fetchDistricts()
   }, [])
 
   return (
@@ -102,7 +122,24 @@ export default function UsersPage() {
           <select name="role" value={form.role} onChange={handleChange} className="w-full p-2 border">
             <option value="enumerator">Enumerator</option>
             <option value="admin">Admin</option>
+            <option value="district_cpo">District CPO</option>
           </select>
+          {form.role === 'district_cpo' && (
+            <select 
+              name="districtId" 
+              value={form.districtId} 
+              onChange={handleChange} 
+              required 
+              className="w-full p-2 border"
+            >
+              <option value="">Select District</option>
+              {districts.map((district) => (
+                <option key={district.id} value={district.id}>
+                  {district.name}
+                </option>
+              ))}
+            </select>
+          )}
           <Button type="submit" disabled={loading} className='w-full'>
             {loading ? (
                 <>
@@ -128,6 +165,7 @@ export default function UsersPage() {
               <th className="border px-2 py-1 text-left">Email</th>
               <th className="border px-2 py-1 text-left">Phone</th>
               <th className="border px-2 py-1 text-left">Role</th>
+              <th className="border px-2 py-1 text-left">District</th>
               <th className="border px-2 py-1 text-left">Activated</th>
               <th className="border px-2 py-1 text-left">Actions</th>
             </tr>
@@ -138,7 +176,8 @@ export default function UsersPage() {
                 <td className="border px-2 py-1">{user.name}</td>
                 <td className="border px-2 py-1">{user.email}</td>
                 <td className="border px-2 py-1">{user.phone}</td>
-                <td className="border px-2 py-1">{user.role}</td>
+                <td className="border px-2 py-1 capitalize">{user.role.toLowerCase().replace('_', ' ')}</td>
+                <td className="border px-2 py-1">{user.district?.name || '-'}</td>
                 <td className="border px-2 py-1">
                   {user.password ? '✅ Yes' : (
                     <div className="flex items-center gap-2">

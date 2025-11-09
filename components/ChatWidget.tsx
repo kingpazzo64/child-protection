@@ -1,46 +1,148 @@
-"use react";
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MessageCircle, X, Send, Bot } from "lucide-react";
 import { Input } from "@/components/ui/input";
+interface Message {
+  id: number;
+  text: string;
+  isBot: boolean;
+  timestamp: Date;
+  suggestions?: string[];
+}
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       text: "Hello! I'm here to help you find child protection services. How can I assist you today?",
       isBot: true,
-      timestamp: new Date()
+      timestamp: new Date(),
+      suggestions: [
+        "Find services in my district",
+        "Show me all service types",
+        "What services are available?"
+      ]
     }
   ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = () => {
-    if (!message.trim()) return;
+  const sendMessage = async () => {
+    if (!message.trim() || isLoading) return;
 
-    const newMessage = {
+    const userMessage: Message = {
       id: messages.length + 1,
       text: message,
       isBot: false,
       timestamp: new Date()
     };
 
-    setMessages([...messages, newMessage]);
+    setMessages(prev => [...prev, userMessage]);
+    const currentMessage = message;
     setMessage("");
+    setIsLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse = {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: currentMessage }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
+      
+      const botResponse: Message = {
         id: messages.length + 2,
-        text: "Thank you for your message. I can help you find services by location, type, or specific needs. What would you like to know?",
+        text: data.response || "I'm sorry, I couldn't process your request. Please try again.",
         isBot: true,
-        timestamp: new Date()
+        timestamp: new Date(),
+        suggestions: data.suggestions || []
       };
+
       setMessages(prev => [...prev, botResponse]);
-    }, 1000);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorResponse: Message = {
+        id: messages.length + 2,
+        text: "I'm sorry, I encountered an error. Please try again or rephrase your question.",
+        isBot: true,
+        timestamp: new Date(),
+        suggestions: [
+          "Find services in Kigali",
+          "Show me all services",
+          "What services are available?"
+        ]
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSuggestionClick = async (suggestion: string) => {
+    if (isLoading) return;
+    
+    const userMessage: Message = {
+      id: messages.length + 1,
+      text: suggestion,
+      isBot: false,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: suggestion }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
+      
+      const botResponse: Message = {
+        id: messages.length + 2,
+        text: data.response || "I'm sorry, I couldn't process your request. Please try again.",
+        isBot: true,
+        timestamp: new Date(),
+        suggestions: data.suggestions || []
+      };
+
+      setMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorResponse: Message = {
+        id: messages.length + 2,
+        text: "I'm sorry, I encountered an error. Please try again or rephrase your question.",
+        isBot: true,
+        timestamp: new Date(),
+        suggestions: [
+          "Find services in Kigali",
+          "Show me all services",
+          "What services are available?"
+        ]
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -64,21 +166,49 @@ const ChatWidget = () => {
           
           <div className="flex-1 p-4 overflow-y-auto space-y-3">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}
-              >
+              <div key={msg.id} className="space-y-2">
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg text-sm ${
-                    msg.isBot
-                      ? 'bg-muted text-foreground'
-                      : 'bg-primary text-primary-foreground'
-                  }`}
+                  className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}
                 >
-                  {msg.text}
+                  <div
+                    className={`max-w-[80%] p-3 rounded-lg text-sm whitespace-pre-wrap ${
+                      msg.isBot
+                        ? 'bg-muted text-foreground'
+                        : 'bg-primary text-primary-foreground'
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
                 </div>
+                {msg.isBot && msg.suggestions && msg.suggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-2 ml-2">
+                    {msg.suggestions.map((suggestion, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-auto py-1 px-2"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        disabled={isLoading}
+                      >
+                        {suggestion}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-muted text-foreground p-3 rounded-lg text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="p-4 border-t border-border">
@@ -87,10 +217,16 @@ const ChatWidget = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Ask me anything..."
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                onKeyPress={(e) => e.key === 'Enter' && !isLoading && sendMessage()}
                 className="flex-1"
+                disabled={isLoading}
               />
-              <Button onClick={sendMessage} size="icon" className="bg-chat-primary hover:bg-chat-primary/90">
+              <Button 
+                onClick={sendMessage} 
+                size="icon" 
+                className="bg-chat-primary hover:bg-chat-primary/90"
+                disabled={isLoading}
+              >
                 <Send className="w-4 h-4" />
               </Button>
             </div>

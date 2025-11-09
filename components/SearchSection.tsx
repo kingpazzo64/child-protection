@@ -9,11 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RotateCcw } from "lucide-react";
 import { Directory, District, ServiceType, BeneficiaryType } from "@/types";
+import { RotateCcw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type SearchSectionProps = {
-  onFilter: (district: string, sector: string, service: string, beneficiary: string) => void;
+  onFilter: (district: string, sector: string, service: string, beneficiary: string, providerName: string) => void;
   districts: District[];
   serviceTypes: ServiceType[];
   beneficiaryTypes: BeneficiaryType[];
@@ -38,10 +40,40 @@ const SearchSection = ({
   beneficiaryTypes,
   directories
 }: SearchSectionProps) => {
-  const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
-  const [selectedSector, setSelectedSector] = useState("All Sectors");
-  const [selectedService, setSelectedService] = useState("All service types");
-  const [selectedBeneficiary, setSelectedBeneficiary] = useState("All Beneficiaries");
+  const { t, language } = useLanguage();
+  const [selectedDistrict, setSelectedDistrict] = useState(t.search.allDistricts);
+  const [selectedSector, setSelectedSector] = useState(t.search.allSectors);
+  const [selectedService, setSelectedService] = useState(t.search.allServiceTypes);
+  const [selectedBeneficiary, setSelectedBeneficiary] = useState(t.search.allBeneficiaries);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [providerName, setProviderName] = useState("");
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isDistrictsOpen, setIsDistrictsOpen] = useState(false);
+
+  // Update state when language changes - only update "All" options, preserve actual selections
+  useEffect(() => {
+    // Check if current selections are "All" options (they might be in the old language)
+    // Only update if the selection matches an "All" option (either old or new language)
+    const allDistrictsOptions = ['All Districts', 'Intara Zose', t.search.allDistricts];
+    const allSectorsOptions = ['All Sectors', 'Uturere Twose', t.search.allSectors];
+    const allServiceTypesOptions = ['All service types', 'Ubwoko bwose bw\'inshingano', t.search.allServiceTypes];
+    const allBeneficiariesOptions = ['All Beneficiaries', 'Abatsindiye Bose', t.search.allBeneficiaries];
+    
+    if (allDistrictsOptions.includes(selectedDistrict)) {
+      setSelectedDistrict(t.search.allDistricts);
+    }
+    if (allSectorsOptions.includes(selectedSector)) {
+      setSelectedSector(t.search.allSectors);
+    }
+    if (allServiceTypesOptions.includes(selectedService)) {
+      setSelectedService(t.search.allServiceTypes);
+    }
+    if (allBeneficiariesOptions.includes(selectedBeneficiary)) {
+      setSelectedBeneficiary(t.search.allBeneficiaries);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
   // const [sectors, setSectors] = useState<District["sectors"]>([]);
 
   // useEffect(() => {
@@ -64,37 +96,43 @@ const SearchSection = ({
 
   const handleDistrictChange = (district: string) => {
     setSelectedDistrict(district);
-    onFilter(district, "All Sectors", selectedService, selectedBeneficiary);
+    onFilter(district, t.search.allSectors, selectedService, selectedBeneficiary, providerName);
   };
   const handleSectorChange = (sector: string) => {
     setSelectedSector(sector);
-    onFilter(selectedDistrict, sector, selectedService, selectedBeneficiary);
+    onFilter(selectedDistrict, sector, selectedService, selectedBeneficiary, providerName);
   };
   const handleServiceChange = (service: string) => {
     setSelectedService(service);
-    onFilter(selectedDistrict, selectedSector, service, selectedBeneficiary);
+    onFilter(selectedDistrict, selectedSector, service, selectedBeneficiary, providerName);
   };
   const handleBeneficiaryChange = (beneficiary: string) => {
     setSelectedBeneficiary(beneficiary);
-    onFilter(selectedDistrict, selectedSector, selectedService, beneficiary);
+    onFilter(selectedDistrict, selectedSector, selectedService, beneficiary, providerName);
   };
+  const handleProviderNameChange = (name: string) => {
+    setProviderName(name);
+    onFilter(selectedDistrict, selectedSector, selectedService, selectedBeneficiary, name);
+  };
+
+
   const handleClearFilters = () => {
-    setSelectedDistrict("All Districts");
-    setSelectedSector("All Sectors");
-    setSelectedService("All service types");
-    setSelectedBeneficiary("All Beneficiaries");
-    // setSectors([]);
-    onFilter("All Districts", "All Sectors", "All service types", "All Beneficiaries");
+    setSelectedDistrict(t.search.allDistricts);
+    setSelectedSector(t.search.allSectors);
+    setSelectedService(t.search.allServiceTypes);
+    setSelectedBeneficiary(t.search.allBeneficiaries);
+    setProviderName("");
+    onFilter(t.search.allDistricts, t.search.allSectors, t.search.allServiceTypes, t.search.allBeneficiaries, "");
   };
 
   // Available districts based on selected service and beneficiary filter
   const getAvailableDistricts = (): District[] => {
     const filtered = directories.filter(dir =>
-      (selectedService === "All service types" ||
+      (selectedService === t.search.allServiceTypes ||
         dir.services?.some(s => s.service.name === selectedService) ||
         dir.otherServices?.toLowerCase().includes(selectedService.toLowerCase())
       ) &&
-      (selectedBeneficiary === "All Beneficiaries" ||
+      (selectedBeneficiary === t.search.allBeneficiaries ||
         dir.beneficiaries?.some(b => b.beneficiary.name === selectedBeneficiary))
     );
 
@@ -112,8 +150,8 @@ const SearchSection = ({
 
   const getAvailableServices = (): ServiceType[] => {
     const filtered = directories.filter(dir =>
-      (selectedDistrict === "All Districts" || dir.locations?.some(loc => loc.district.name === selectedDistrict)) &&
-      (selectedBeneficiary === "All Beneficiaries" || dir.beneficiaries?.some(b => b.beneficiary.name === selectedBeneficiary))
+      (selectedDistrict === t.search.allDistricts || dir.locations?.some(loc => loc.district.name === selectedDistrict)) &&
+      (selectedBeneficiary === t.search.allBeneficiaries || dir.beneficiaries?.some(b => b.beneficiary.name === selectedBeneficiary))
     );
 
     const uniqueServiceMap = new Map<number, ServiceType>();
@@ -129,14 +167,35 @@ const SearchSection = ({
   return (
     <div className="bg-white shadow-sm border-b border-border p-4 md:p-6">
       <div className="container mx-auto px-2 md:px-4">
+        <h1 className="text-3xl font-bold text-center text-primary mb-4">
+          {t.search.title}
+        </h1>
+        
+        {/* Search Instructions */}
+        {/* <div className="text-center mb-6">
+          <p className="text-muted-foreground text-sm md:text-base">
+            Search and filter child protection services by <span className="font-medium text-primary">district</span>, <span className="font-medium text-primary">service type</span>, and <span className="font-medium text-primary">type of beneficiaries</span>
+          </p>
+        </div> */}
+
+        <div className="mb-6 w-full max-w-2xl mx-auto">
+          <Input
+            type="text"
+            placeholder={t.search.providerNamePlaceholder}
+            value={providerName}
+            onChange={(e) => handleProviderNameChange(e.target.value)}
+            className="w-full"
+          />
+        </div>
+
         <div className="flex flex-wrap gap-4 items-end justify-center">
           {/* District */}
           <div className="min-w-[140px] sm:min-w-[200px]">
-            <label className="block text-sm font-medium mb-2">District</label>
+            <label className="block text-sm font-medium mb-2">{t.search.district}</label>
             <Select value={selectedDistrict} onValueChange={handleDistrictChange}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="All Districts">All Districts</SelectItem>
+                <SelectItem value={t.search.allDistricts}>{t.search.allDistricts}</SelectItem>
                 {districts.map(d => <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -156,11 +215,11 @@ const SearchSection = ({
 
           {/* Service */}
           <div className="min-w-[140px] sm:min-w-[200px]">
-            <label className="block text-sm font-medium mb-2">Service Type</label>
+            <label className="block text-sm font-medium mb-2">{t.search.serviceType}</label>
             <Select value={selectedService} onValueChange={handleServiceChange}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="All service types">All service types</SelectItem>
+                <SelectItem value={t.search.allServiceTypes}>{t.search.allServiceTypes}</SelectItem>
                 {serviceTypes.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -168,66 +227,84 @@ const SearchSection = ({
 
           {/* Beneficiary Type */}
           <div className="min-w-[140px] sm:min-w-[200px]">
-            <label className="block text-sm font-medium mb-2">Type of Beneficiaries</label>
+            <label className="block text-sm font-medium mb-2">{t.search.typeOfBeneficiaries}</label>
             <Select value={selectedBeneficiary} onValueChange={handleBeneficiaryChange}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="All Beneficiaries">All Beneficiaries</SelectItem>
+                <SelectItem value={t.search.allBeneficiaries}>{t.search.allBeneficiaries}</SelectItem>
                 {beneficiaryTypes.map(b => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={handleClearFilters}><RotateCcw className="w-4 h-4 mr-2" />Clear Filters</Button>
+            <Button onClick={handleClearFilters}><RotateCcw className="w-4 h-4 mr-2" />{t.search.clearFilters}</Button>
           </div>
+
+          
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4 my-4">
-            {/* Available Services */}
-            
-            {(selectedDistrict !== "All Districts" || selectedBeneficiary !== "All Beneficiaries") && (
-              <div className="col-span-6">
-                {getAvailableServices().length ? <h3 className="text-lg font-semibold text-blue-600 mb-3">Services in {selectedDistrict}</h3> : ''}
-                <div className="flex flex-wrap gap-2">
+      {/* Available Services and Districts - Compact Links */}
+      <div className="container mx-auto px-2 md:px-4 mt-2">
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          {/* Available Services Link */}
+          {(selectedDistrict !== t.search.allDistricts || selectedBeneficiary !== t.search.allBeneficiaries) && getAvailableServices().length > 0 && (
+            <div className="inline-flex items-center gap-2">
+              <button
+                onClick={() => setIsServicesOpen(!isServicesOpen)}
+                className="text-primary hover:text-primary/80 underline font-medium cursor-pointer"
+              >
+                {t.search.availableServices} ({getAvailableServices().length})
+              </button>
+              {isServicesOpen && (
+                <div className="inline-flex flex-wrap gap-2 ml-2">
                   {getAvailableServices().map((service) => (
-                    <span 
-                      key={service.id} 
-                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition-colors"
-                      onClick={() => handleServiceChange(service.name)}
+                    <button
+                      key={service.id}
+                      onClick={() => {
+                        handleServiceChange(service.name)
+                        setIsServicesOpen(false)
+                      }}
+                      className="px-2 py-1 text-xs bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors"
                     >
                       {service.name}
-                    </span>
+                    </button>
                   ))}
                 </div>
-              </div>
-            )}
-            
-            {/* Available Districts */}
-              {(selectedService !== "All service types" || selectedBeneficiary !== "All Beneficiaries") && (
-                <div className="col-span-6">
-                  {getAvailableDistricts().length ? (
-                    <h3 className="text-lg font-semibold text-green-600 mb-3">
-                      Districts with {selectedService}
-                    </h3>
-                  ) : null}
-                  <div className="flex flex-wrap gap-2">
-                    {getAvailableDistricts().map((district) => (
-                      <span
-                        key={district.id}
-                        className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm cursor-pointer hover:bg-green-200 transition-colors"
-                        onClick={() => handleDistrictChange(district.name)}
-                      >
-                        {district.name}
-                      </span>
-                    ))}
-                  </div>
+              )}
+            </div>
+          )}
+          
+          {/* Available Districts Link */}
+          {(selectedService !== t.search.allServiceTypes || selectedBeneficiary !== t.search.allBeneficiaries) && getAvailableDistricts().length > 0 && (
+            <div className="inline-flex items-center gap-2">
+              <button
+                onClick={() => setIsDistrictsOpen(!isDistrictsOpen)}
+                className="text-primary hover:text-primary/80 underline font-medium cursor-pointer"
+              >
+                {t.search.availableDistricts} ({getAvailableDistricts().length})
+              </button>
+              {isDistrictsOpen && (
+                <div className="inline-flex flex-wrap gap-2 ml-2">
+                  {getAvailableDistricts().map((district) => (
+                    <button
+                      key={district.id}
+                      onClick={() => {
+                        handleDistrictChange(district.name)
+                        setIsDistrictsOpen(false)
+                      }}
+                      className="px-2 py-1 text-xs bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors"
+                    >
+                      {district.name}
+                    </button>
+                  ))}
                 </div>
               )}
-
-            
-          </div>
+            </div>
+          )}
+        </div>
+      </div>
 
     </div>
   );

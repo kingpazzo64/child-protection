@@ -10,23 +10,12 @@ import { Directory, District, ServiceType, BeneficiaryType } from '@/types'
 import { servicesData, Service } from "@/data/services";
 import "./custom.css";
 import { toast } from 'react-hot-toast'
-
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value)
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
-
-    return () => clearTimeout(handler)
-  }, [value, delay])
-
-  return debouncedValue
-}
-
+import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
+  const { t } = useLanguage();
   const [filteredServices, setFilteredServices] = useState<Service[]>(servicesData);
   const [hoveredServiceId, setHoveredServiceId] = useState<string | null>(null);
 
@@ -36,11 +25,19 @@ const Index = () => {
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
   const [districts, setDistricts] = useState<District[]>([])
   const [beneficiaryTypes, setBeneficiaryTypes] = useState<BeneficiaryType[]>([])
-  const [districtFilter, setDistrictFilter] = useState('')
-  const [serviceTypeFilter, setServiceTypeFilter] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
-
-  const debouncedQuery = useDebounce(searchQuery, 300)
+const [currentFilters, setCurrentFilters] = useState<{
+    district: string;
+    sector: string;
+    service: string;
+    beneficiary: string;
+    providerName: string;
+  }>({
+    district: t.search.allDistricts,
+    sector: t.search.allSectors,
+    service: t.search.allServiceTypes,
+    beneficiary: t.search.allBeneficiaries,
+    providerName: ""
+  })
 
     useEffect(() => {
       fetchData()
@@ -49,8 +46,9 @@ const Index = () => {
     const fetchData = async () => {
     setLoading(true)
     try {
+      // Use public endpoint to always get all directories regardless of authentication
       const [dirRes, svcRes, distRes, benfRes] = await Promise.all([
-        fetch('/api/directories'),
+        fetch('/api/public/directories'),
         fetch('/api/service-types'),
         fetch('/api/districts'),
         fetch('/api/beneficiary-types'),
@@ -65,6 +63,8 @@ const Index = () => {
       setServiceTypes(svcJson.types)
       setDistricts(distJson)
       setBeneficiaryTypes(beneJson.types)
+      // Initialize filtered with all directories
+      setFiltered(dirJson.directories)
     } catch (err) {
       toast.error('Failed to load data')
     } finally {
@@ -72,41 +72,25 @@ const Index = () => {
     }
   }
 
-  useEffect(() => {
-    let results = [...directories]
-
-    if (debouncedQuery.trim()) {
-      const query = debouncedQuery.toLowerCase()
-      results = results.filter(dir =>
-        dir.nameOfOrganization.toLowerCase().includes(query) ||
-        dir.email.toLowerCase().includes(query) ||
-        dir.phone.toLowerCase().includes(query)
-      )
-    }
-
-    if (districtFilter) {
-      results = results.filter(dir =>
-        dir.locations?.some(loc => String(loc.districtId) === districtFilter)
-      )
-    }
-
-
-    if (serviceTypeFilter) {
-      results = results.filter(dir => dir.services.some((s) => String(s.service.id) === serviceTypeFilter))
-    }
-
-    setFiltered(results)
-  }, [directories, debouncedQuery, districtFilter, serviceTypeFilter])
-
   const handleFilter = (
       district: string,
       sector: string,
       service: string,
-      urgency: string
+      urgency: string,
+      providerName: string
     ) => {
+      // Store current filter values
+      setCurrentFilters({
+        district,
+        sector,
+        service,
+        beneficiary: urgency,
+        providerName
+      });
+
       let filtered = [...directories];
 
-      if (district !== "All Districts") {
+      if (district !== t.search.allDistricts) {
 
         filtered = filtered.filter(dir =>
           dir.locations?.some(loc => String(loc.district.name) === district)
@@ -114,13 +98,13 @@ const Index = () => {
 
       }
 
-      if (sector && sector !== "All Sectors") {
+      if (sector && sector !== t.search.allSectors) {
         filtered = filtered.filter(dir =>
           dir.locations?.some(loc => String(loc.sector.name) === sector)
         )
       }
 
-      if (service && service !== "All service types") {
+      if (service && service !== t.search.allServiceTypes) {
         filtered = filtered.filter(
           (dir) =>
             dir.services.some((s) => s.service.name === service) ||
@@ -128,10 +112,19 @@ const Index = () => {
         );
       }
 
-      if (urgency && urgency !== "All Beneficiaries") {
+      if (urgency && urgency !== t.search.allBeneficiaries) {
         filtered = filtered.filter(dir =>
           dir.beneficiaries?.some(b => b.beneficiary.name === urgency)
         )
+      }
+
+      if (providerName && providerName.trim() !== "") {
+        const query = providerName.toLowerCase();
+        filtered = filtered.filter(dir =>
+          dir.nameOfOrganization.toLowerCase().includes(query) ||
+          dir.email?.toLowerCase().includes(query) ||
+          dir.phone?.toLowerCase().includes(query)
+        );
       }
 
       setFiltered(filtered);
@@ -150,14 +143,61 @@ const Index = () => {
       />
       
       <div className="p-4 md:p-6">
-        <div className="mb-6">
-          <p className="text-muted-foreground">
-            Showing {filtered.length} child protection services
-          </p>
-        </div>
+        {!loading && (
+          <div className="mb-6">
+            <p className="text-muted-foreground">
+              {t.mainPage.showingServices} {filtered.length} {t.mainPage.services}
+            </p>
+          </div>
+        )}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start auto-rows-max">
-              {filtered.length > 0 ? (
+              {loading ? (
+                <>
+                  {[...Array(6)].map((_, index) => (
+                    <Card key={index} className="border-l-4 border-l-primary">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 text-left space-y-3">
+                            <Skeleton className="h-6 w-3/4" />
+                            <div className="flex flex-wrap gap-2">
+                              <Skeleton className="h-5 w-20 rounded-full" />
+                              <Skeleton className="h-5 w-24 rounded-full" />
+                              <Skeleton className="h-5 w-16 rounded-full" />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-5 w-12 rounded-full" />
+                            <Skeleton className="h-4 w-4 rounded" />
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-24" />
+                          <div className="flex flex-wrap gap-2">
+                            <Skeleton className="h-5 w-28 rounded-full" />
+                            <Skeleton className="h-5 w-32 rounded-full" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-4/5" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                        <div className="flex justify-between items-center pt-3 border-t border-border">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              ) : filtered.length > 0 ? (
                 filtered.map((directory) => (
                   <div
                     key={directory.id}
@@ -167,17 +207,68 @@ const Index = () => {
                     <ServiceCard directory={directory} />
                   </div>
                 ))
-              ): (
-                <div className="text-center py-12">
+              ) : (
+                <div className="col-span-full text-center py-12">
                   <div className="text-muted-foreground mb-2">
                     <svg className="mx-auto h-12 w-12 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.7-2.6L12 4.5l5.7 7.9A7.962 7.962 0 0112 15z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-foreground mb-1">No services found</h3>
-                  <p className="text-muted-foreground">
-                    No child protection services match your current filters. Try adjusting your search criteria or clear filters to see all available services.
-                  </p>
+                  <h3 className="text-lg font-medium text-foreground mb-2">{t.mainPage.noServicesFound}</h3>
+                  {(() => {
+                    const hasActiveFilters = 
+                      (currentFilters.providerName && currentFilters.providerName.trim() !== "") ||
+                      currentFilters.district !== t.search.allDistricts ||
+                      currentFilters.service !== t.search.allServiceTypes ||
+                      currentFilters.beneficiary !== t.search.allBeneficiaries ||
+                      currentFilters.sector !== t.search.allSectors;
+                    
+                    if (hasActiveFilters) {
+                      return (
+                        <div className="text-muted-foreground mb-4">
+                          <p className="mb-3">
+                            {t.mainPage.noServicesFound}
+                          </p>
+                          <div className="flex flex-wrap gap-2 justify-center items-center mb-4">
+                            {currentFilters.providerName && currentFilters.providerName.trim() !== "" && (
+                              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                                {t.search.providerName}: &quot;{currentFilters.providerName}&quot;
+                              </span>
+                            )}
+                            {currentFilters.district !== t.search.allDistricts && (
+                              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                {t.search.district}: {currentFilters.district}
+                              </span>
+                            )}
+                            {currentFilters.service !== t.search.allServiceTypes && (
+                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                {t.search.serviceType}: {currentFilters.service}
+                              </span>
+                            )}
+                            {currentFilters.beneficiary !== t.search.allBeneficiaries && (
+                              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                                {t.search.typeOfBeneficiaries}: {currentFilters.beneficiary}
+                              </span>
+                            )}
+                            {currentFilters.sector !== t.search.allSectors && (
+                              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                                {t.search.sector}: {currentFilters.sector}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-muted-foreground text-sm">
+                            {t.mainPage.tryAdjustingSearch}
+                          </p>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <p className="text-muted-foreground">
+                          {t.mainPage.noServicesAvailable}
+                        </p>
+                      );
+                    }
+                  })()}
                 </div>
               )}
             </div>

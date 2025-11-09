@@ -32,12 +32,26 @@ export default function DirectoryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [districtFilter, setDistrictFilter] = useState('')
   const [serviceTypeFilter, setServiceTypeFilter] = useState('')
+  const [userDistrictId, setUserDistrictId] = useState<number | null>(null)
 
   const debouncedQuery = useDebounce(searchQuery, 300)
 
   useEffect(() => {
     fetchData()
+    fetchCurrentUser()
   }, [])
+
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await fetch('/api/user/me')
+      if (res.ok) {
+        const user = await res.json()
+        setUserDistrictId(user.districtId)
+      }
+    } catch (err) {
+      console.error('Failed to fetch current user:', err)
+    }
+  }
 
   const fetchData = async () => {
     setLoading(true)
@@ -139,7 +153,10 @@ export default function DirectoryPage() {
           onChange={(e) => setDistrictFilter(e.target.value)}
         >
           <option value="">All Districts</option>
-          {districts.map((d) => (
+          {(userDistrictId 
+            ? districts.filter(d => d.id === userDistrictId)
+            : districts
+          ).map((d) => (
             <option key={d.id} value={d.id}>{d.name}</option>
           ))}
         </select>
@@ -167,11 +184,14 @@ export default function DirectoryPage() {
                 <th className="text-left p-2">Category</th>
                 <th className="text-left p-2">Services</th>
                 <th className="text-left p-2">Beneficiaries</th>
-                <th className="text-left p-2">Locations</th>
+                <th className="text-left p-2">District</th>
+                <th className="text-left p-2">Full Address</th>
                 <th className="text-left p-2">Email</th>
                 <th className="text-left p-2">Phone</th>
+                <th className="text-left p-2">Website</th>
+                <th className="text-left p-2">Paid</th>
                 <th className="text-left p-2">Created By</th>
-                <th className="text-left p-2">Actions</th>
+                {/* <th className="text-left p-2">Actions</th> */}
               </tr>
             </thead>
             <tbody>
@@ -194,6 +214,14 @@ export default function DirectoryPage() {
                   <td className="p-2">
                     {dir.locations
                       ?.map(loc =>
+                        `${loc.district.name}`
+                      )
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .join(' | ')}
+                  </td>
+                  <td className="p-2">
+                    {dir.locations
+                      ?.map(loc =>
                         `${loc.district.name}${loc.sector ? ` > ${loc.sector.name}` : ''}${loc.cell ? ` > ${loc.cell.name}` : ''}${loc.village ? ` > ${loc.village.name}` : ''}`
                       )
                       .filter((v, i, a) => a.indexOf(v) === i)
@@ -201,11 +229,13 @@ export default function DirectoryPage() {
                   </td>
                   <td className="p-2">{dir.email}</td>
                   <td className="p-2">{dir.phone}</td>
+                  <td className="p-2">{dir.website}</td>
+                  <td className="p-2">{dir.paid ? 'PAID' : 'FREE'}</td>
                   <td className="p-2">{dir.createdBy?.name ?? '—'}</td>
-                  <td className="p-2 space-x-2">
+                  {/* <td className="p-2 space-x-2">
                     <button onClick={() => handleEdit(dir)} className="text-blue-600 hover:underline">Edit</button>
                     <button onClick={() => handleDelete(dir.id)} className="text-red-600 hover:underline">Delete</button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
               {filtered.length === 0 && (
@@ -249,6 +279,7 @@ export default function DirectoryPage() {
           beneficiaryTypes={beneficiaryTypes}
           districts={districts}
           modalOpen={showModal}
+          userDistrictId={userDistrictId}
         />
       )}
     </div>

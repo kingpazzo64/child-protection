@@ -17,6 +17,8 @@ model User {
   email           String      @unique
   idNumber        String      @db.Char(16)
   role            Role
+  districtId      Int?        // Only for DISTRICT_CPO users
+  district        District?   @relation(fields: [districtId], references: [id])
   password        String?
   emailVerified   Boolean     @default(false)
   activationToken String?
@@ -31,6 +33,7 @@ model User {
 enum Role {
   ADMIN
   ENUMERATOR
+  DISTRICT_CPO
 }
 
 enum Category {
@@ -47,19 +50,19 @@ model ServiceType {
 
 // --- Beneficiary Type CRUD
 model BeneficiaryType {
-  id          Int                     @id @default(autoincrement())
-  name        String                  @unique
+  id          Int                    @id @default(autoincrement())
+  name        String                 @unique
   description String?
   directories DirectoryBeneficiary[]
 }
 
 // Junction table for Directory <-> BeneficiaryType
 model DirectoryBeneficiary {
-  id             Int             @id @default(autoincrement())
-  directory      Directory       @relation(fields: [directoryId], references: [id])
-  directoryId    Int
-  beneficiary    BeneficiaryType @relation(fields: [beneficiaryId], references: [id])
-  beneficiaryId  Int
+  id            Int             @id @default(autoincrement())
+  directory     Directory       @relation(fields: [directoryId], references: [id])
+  directoryId   Int
+  beneficiary   BeneficiaryType @relation(fields: [beneficiaryId], references: [id])
+  beneficiaryId Int
 }
 
 // --- Directory model
@@ -75,14 +78,15 @@ model Directory {
   services           DirectoryService[]
   createdById        Int
   createdBy          User                   @relation(fields: [createdById], references: [id])
-  locations          DirectoryLocation[]    // multiple locations
+  locations          DirectoryLocation[] // multiple locations
   beneficiaries      DirectoryBeneficiary[] // multiple beneficiaries
+  reports            Report[] // reports about this directory
 }
 
 // Junction table for Directory <-> ServiceType
 model DirectoryService {
-  id          Int        @id @default(autoincrement())
-  directory   Directory  @relation(fields: [directoryId], references: [id])
+  id          Int         @id @default(autoincrement())
+  directory   Directory   @relation(fields: [directoryId], references: [id])
   directoryId Int
   service     ServiceType @relation(fields: [serviceId], references: [id])
   serviceId   Int
@@ -104,34 +108,58 @@ model DirectoryLocation {
 }
 
 model District {
-  id          Int                  @id @default(autoincrement())
-  name        String               @unique
+  id          Int                 @id @default(autoincrement())
+  name        String              @unique
   sectors     Sector[]
   directories DirectoryLocation[]
+  users       User[]              // Users assigned to this district (DISTRICT_CPO)
 }
 
 model Sector {
-  id          Int                  @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   name        String
-  district    District             @relation(fields: [districtId], references: [id])
+  district    District            @relation(fields: [districtId], references: [id])
   districtId  Int
   cells       Cell[]
   directories DirectoryLocation[]
 }
 
 model Cell {
-  id          Int                  @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   name        String
-  sector      Sector               @relation(fields: [sectorId], references: [id])
+  sector      Sector              @relation(fields: [sectorId], references: [id])
   sectorId    Int
   villages    Village[]
   directories DirectoryLocation[]
 }
 
 model Village {
-  id          Int                  @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   name        String
-  cell        Cell                 @relation(fields: [cellId], references: [id])
+  cell        Cell                @relation(fields: [cellId], references: [id])
   cellId      Int
   directories DirectoryLocation[]
+}
+
+enum ReportType {
+  NON_FUNCTIONAL
+  INACTIVE_SERVICE
+  INCORRECT_INFO
+  OTHER
+}
+
+model Report {
+  id            Int        @id @default(autoincrement())
+  directoryId   Int
+  directory     Directory  @relation(fields: [directoryId], references: [id], onDelete: Cascade)
+  reportType    ReportType
+  description   String
+  reporterName  String?
+  reporterEmail String?
+  reporterPhone String?
+  status        String     @default("PENDING") // PENDING, REVIEWED, RESOLVED
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@map("reports")
 }

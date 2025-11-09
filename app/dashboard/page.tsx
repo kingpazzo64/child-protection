@@ -2,10 +2,29 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, UserCheck, Building, ServerIcon } from "lucide-react"
 import { prisma } from "@/lib/prisma"
+import { getCurrentUser } from "@/lib/getCurrentUser.server"
 
 export default async function DashboardHome() {
+  const user = await getCurrentUser()
+  
+  // Build directory count query based on user role
+  let directoryCountWhere: any = {}
+  if (user?.role === 'DISTRICT_CPO' && user.districtId) {
+    directoryCountWhere = {
+      locations: {
+        some: {
+          districtId: user.districtId,
+        },
+      },
+    }
+  } else if (user?.role === 'ENUMERATOR') {
+    directoryCountWhere = {
+      createdById: Number(user.id),
+    }
+  }
+
   const [totalServices, totalAdmins, totalEnumerators, totalServiceTypes] = await Promise.all([
-    prisma.directory.count(),
+    prisma.directory.count({ where: directoryCountWhere }),
     prisma.user.count({ where: { role: 'ADMIN' } }),
     prisma.user.count({ where: { role: 'ENUMERATOR' } }),
     prisma.serviceType.count(),

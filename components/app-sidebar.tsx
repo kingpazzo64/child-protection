@@ -33,15 +33,19 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const navigationItems = [
     { title: "Dashboard", url: "/dashboard" },
     { title: "Service Providers", url: "/dashboard/directories" },
+    { title: "Reports", url: "/dashboard/reports", restricted: true },
     { title: "Service Types", url: "/dashboard/service-types", restricted: true },
     { title: "Beneficiary Types", url: "/dashboard/beneficiary-types", restricted: true },
     { title: "Users", url: "/dashboard/users", restricted: true },
     { title: "Change Password", url: "/change-password" },
   ]
 
-  const filteredNavigationItems = navigationItems.filter(
-    (item) => !(item.restricted && user?.role.toLowerCase() === "enumerator")
-  )
+  const filteredNavigationItems = navigationItems.filter((item) => {
+    if (!item.restricted) return true
+    const userRole = user?.role.toLowerCase()
+    // Restrict access to ADMIN only (exclude ENUMERATOR and DISTRICT_CPO)
+    return userRole === "admin"
+  })
 
   return (
     <Sidebar

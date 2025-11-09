@@ -3,12 +3,13 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { Menu } from "lucide-react"
 import "../dashboard.css";
 import { getCurrentUser } from "@/lib/getCurrentUser.server"
+import Footer from "@/components/Footer"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background flex-col">
         <AppSidebar user={user}/>
         
         <div className="flex-1 flex flex-col">
@@ -33,6 +34,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {children}
           </main>
         </div>
+        
+        {/* Footer */}
+        <Footer />
       </div>
     </SidebarProvider>
   )

@@ -10,11 +10,25 @@ export async function POST(req: NextRequest) {
   if (!token || token.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
-  const { name, email, phone, idNumber, role } = await req.json()
+  const { name, email, phone, idNumber, role, districtId } = await req.json()
 
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
     return NextResponse.json({ error: 'Email already in use' }, { status: 400 })
+  }
+
+  const roleUpper = role.toUpperCase()
+  
+  // Validate districtId is provided for DISTRICT_CPO
+  if (roleUpper === 'DISTRICT_CPO') {
+    if (!districtId) {
+      return NextResponse.json({ error: 'District is required for District CPO users' }, { status: 400 })
+    }
+    // Verify district exists
+    const district = await prisma.district.findUnique({ where: { id: Number(districtId) } })
+    if (!district) {
+      return NextResponse.json({ error: 'Invalid district' }, { status: 400 })
+    }
   }
 
   const activationToken = nanoid(32)
@@ -25,7 +39,8 @@ export async function POST(req: NextRequest) {
       email,
       phone,
       idNumber,
-      role: role.toUpperCase(),
+      role: roleUpper,
+      districtId: roleUpper === 'DISTRICT_CPO' ? Number(districtId) : null,
       activationToken,
     },
   })

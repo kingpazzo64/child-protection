@@ -8,9 +8,12 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ['query'], // Optional: shows SQL queries in dev
+    log: process.env.NODE_ENV === 'development' ? ['query'] : [],
   })
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
 
+// Note: After schema changes, restart the dev server to pick up new Prisma client
 export default prisma

@@ -26,6 +26,7 @@ interface Props {
   beneficiaryTypes: BeneficiaryType[]
   districts: District[]
   modalOpen: boolean
+  userDistrictId?: number | null // District ID for DISTRICT_CPO users
 }
 
 type Location = {
@@ -58,7 +59,13 @@ export default function DirectoryFormModal({
   beneficiaryTypes,
   districts,
   modalOpen,
+  userDistrictId,
 }: Props) {
+  // Filter districts based on user role (DISTRICT_CPO can only see their district)
+  const availableDistricts = userDistrictId
+    ? districts.filter(d => d.id === userDistrictId)
+    : districts
+
   const [form, setForm] = useState<FormState>({
     serviceTypeIds: initialData?.serviceTypeIds ?? [],
     beneficiaryTypeIds: initialData?.beneficiaryTypeIds ?? [],
@@ -83,7 +90,9 @@ export default function DirectoryFormModal({
         villages: [],
       }))
     }
-    return [{ districtId: 0, sectorId: 0, cellId: 0, villageId: 0, sectors: [], cells: [], villages: [] }]
+    // Pre-select user's district for DISTRICT_CPO when creating new directory
+    const defaultDistrictId = userDistrictId && !initialData ? userDistrictId : 0
+    return [{ districtId: defaultDistrictId, sectorId: 0, cellId: 0, villageId: 0, sectors: [], cells: [], villages: [] }]
   })
 
   const [saving, setSaving] = useState(false)
@@ -131,6 +140,16 @@ export default function DirectoryFormModal({
       preloadLocations()
     }
   }, [modalOpen, initialData])
+
+  // Pre-load sectors if user has a default district and no initial data
+  useEffect(() => {
+    if (modalOpen && userDistrictId && !initialData && locations.length > 0) {
+      const firstLocation = locations[0]
+      if (firstLocation.districtId === userDistrictId && firstLocation.sectors.length === 0) {
+        loadSectors(0, userDistrictId)
+      }
+    }
+  }, [modalOpen, userDistrictId, initialData, locations.length])
 
   // --- Load dependent locations dynamically ---
   const loadSectors = async (index: number, districtId: number) => {
@@ -191,7 +210,24 @@ export default function DirectoryFormModal({
     if (field === 'cellId') loadVillages(index, value)
   }
 
-  const addLocation = () => setLocations(prev => [...prev, { districtId: 0, sectorId: 0, cellId: 0, villageId: 0, sectors: [], cells: [], villages: [] }])
+  const addLocation = () => {
+    // For DISTRICT_CPO users, pre-select their district when adding new location
+    const defaultDistrictId = userDistrictId || 0
+    const newIndex = locations.length
+    setLocations(prev => [...prev, { 
+      districtId: defaultDistrictId, 
+      sectorId: 0, 
+      cellId: 0, 
+      villageId: 0, 
+      sectors: [], 
+      cells: [], 
+      villages: [] 
+    }])
+    // Load sectors if district is pre-selected
+    if (userDistrictId) {
+      setTimeout(() => loadSectors(newIndex, userDistrictId), 100)
+    }
+  }
   const removeLocation = (index: number) => setLocations(prev => prev.filter((_, i) => i !== index))
 
   // --- Form change handler ---
@@ -321,10 +357,20 @@ export default function DirectoryFormModal({
                     <span>Location {index + 1}</span>
                     {locations.length > 1 && <button type="button" onClick={() => removeLocation(index)}>Remove</button>}
                   </div>
-                  <select value={loc.districtId} onChange={(e) => handleLocationChange(index, 'districtId', Number(e.target.value))} className="w-full mb-2 border p-2 rounded">
+                  <select 
+                    value={loc.districtId} 
+                    onChange={(e) => handleLocationChange(index, 'districtId', Number(e.target.value))} 
+                    className="w-full mb-2 border p-2 rounded"
+                    disabled={!!userDistrictId && availableDistricts.length === 1}
+                  >
                     <option value={0}>Select District</option>
-                    {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    {availableDistricts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                   </select>
+                  {userDistrictId && availableDistricts.length === 1 && (
+                    <p className="text-xs text-muted-foreground mb-2">
+                      You can only create directories in {availableDistricts[0]?.name}
+                    </p>
+                  )}
                   <select value={loc.sectorId} onChange={(e) => handleLocationChange(index, 'sectorId', Number(e.target.value))} className="w-full mb-2 border p-2 rounded">
                     <option value={0}>Select Sector</option>
                     {loc.sectors.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -340,6 +386,11 @@ export default function DirectoryFormModal({
                 </div>
               ))}
               <Button type="button" onClick={addLocation}>Add Location</Button>
+              {userDistrictId && availableDistricts.length === 1 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Note: All locations must be within {availableDistricts[0]?.name} district.
+                </p>
+              )}
             </div>
 
             {/* Contact */}

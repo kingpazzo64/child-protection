@@ -11,6 +11,14 @@ export async function GET(req: NextRequest) {
   }
 
   const users = await prisma.user.findMany({
+    include: {
+      district: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
     orderBy: { createdAt: 'desc' },
   })
 
