@@ -143,6 +143,16 @@ const [currentFilters, setCurrentFilters] = useState<{
       />
       
       <div className="p-4 md:p-6">
+        {loading && (
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex items-center gap-2 text-primary">
+              <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-primary font-medium animate-pulse">
+                {t.mainPage.loading}
+              </p>
+            </div>
+          </div>
+        )}
         {!loading && (
           <div className="mb-6">
             <p className="text-muted-foreground">
@@ -155,43 +165,50 @@ const [currentFilters, setCurrentFilters] = useState<{
               {loading ? (
                 <>
                   {[...Array(6)].map((_, index) => (
-                    <Card key={index} className="border-l-4 border-l-primary">
-                      <CardHeader className="pb-3">
+                    <Card 
+                      key={index} 
+                      className="border-l-4 border-l-primary shadow-lg animate-pulse"
+                      style={{
+                        animationDelay: `${index * 0.1}s`,
+                        animationDuration: '2s',
+                      }}
+                    >
+                      <CardHeader className="pb-3 bg-muted/30">
                         <div className="flex items-start justify-between">
                           <div className="flex-1 text-left space-y-3">
-                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-6 w-3/4 bg-muted/80" />
                             <div className="flex flex-wrap gap-2">
-                              <Skeleton className="h-5 w-20 rounded-full" />
-                              <Skeleton className="h-5 w-24 rounded-full" />
-                              <Skeleton className="h-5 w-16 rounded-full" />
+                              <Skeleton className="h-5 w-20 rounded-full bg-muted/80" />
+                              <Skeleton className="h-5 w-24 rounded-full bg-muted/80" />
+                              <Skeleton className="h-5 w-16 rounded-full bg-muted/80" />
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Skeleton className="h-5 w-12 rounded-full" />
-                            <Skeleton className="h-4 w-4 rounded" />
+                            <Skeleton className="h-5 w-12 rounded-full bg-muted/80" />
+                            <Skeleton className="h-4 w-4 rounded bg-muted/80" />
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      <CardContent className="space-y-4 pt-4">
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-4 w-24 bg-muted/80" />
                           <div className="flex flex-wrap gap-2">
-                            <Skeleton className="h-5 w-28 rounded-full" />
-                            <Skeleton className="h-5 w-32 rounded-full" />
+                            <Skeleton className="h-5 w-28 rounded-full bg-muted/80" />
+                            <Skeleton className="h-5 w-32 rounded-full bg-muted/80" />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-20" />
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-4 w-4/5" />
+                          <Skeleton className="h-4 w-20 bg-muted/80" />
+                          <Skeleton className="h-4 w-full bg-muted/80" />
+                          <Skeleton className="h-4 w-4/5 bg-muted/80" />
                         </div>
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-16" />
-                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-4 w-16 bg-muted/80" />
+                          <Skeleton className="h-4 w-32 bg-muted/80" />
                         </div>
                         <div className="flex justify-between items-center pt-3 border-t border-border">
-                          <Skeleton className="h-4 w-16" />
-                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-4 w-16 bg-muted/80" />
+                          <Skeleton className="h-4 w-32 bg-muted/80" />
                         </div>
                       </CardContent>
                     </Card>
