@@ -13,7 +13,7 @@
     "postinstall2": "prisma generate && prisma migrate deploy && prisma db seed",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate reset --force",
-    "postinstall": "prisma generate && prisma migrate reset --force"
+    "postinstall": "prisma generate"
   },
   "engines": {
     "node": "22.x"
