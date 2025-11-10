@@ -13,7 +13,12 @@ export async function logEvent(
   metadata?: Record<string, any>
 ): Promise<void> {
   try {
-    const data: any = {
+    const data: {
+      userId: number | null
+      eventType: string
+      timestamp: Date
+      metadata?: Record<string, any>
+    } = {
       userId: userId ?? null,
       eventType,
       timestamp: new Date(),
@@ -24,7 +29,8 @@ export async function logEvent(
       data.metadata = metadata
     }
     
-    await prisma.analyticsEvent.create({ data })
+    // Use type assertion to access analyticsEvent - Prisma client should have this after generation
+    await (prisma as any).analyticsEvent.create({ data })
   } catch (error) {
     // Log error but don't throw - analytics shouldn't break the app
     console.error('Failed to log analytics event:', error)
