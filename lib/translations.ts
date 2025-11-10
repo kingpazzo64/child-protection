@@ -265,8 +265,8 @@ export const translations: Record<Language, Translations> = {
       custodian: 'Umukoresha',
       custodianDescription: 'umukoresha w\'igihugu kandi n\'umuyobozi mukuru w\'urutonde rwa serivisi z\'umutekano w\'abana.',
       copyright: '© 2025 Ikigo cy\'igihugu gishinzwe imikurire no kurengera umwana (NCDA). Uburenganzira bwose ni ubwayo.',
-      serviceDistricts: 'Uturere dutangirwamo serivisi',
-      availableServices: 'Serivisi Zibonekamo',
+      serviceDistricts: 'Uturere',
+      availableServices: 'Serivisi zo kurengera abana',
     },
     mainPage: {
       title: 'Urutonde rwa serivisi zo kurengera abana',
