@@ -105,10 +105,32 @@ const SearchSection = ({
   const handleServiceChange = (service: string) => {
     setSelectedService(service);
     onFilter(selectedDistrict, selectedSector, service, selectedBeneficiary, providerName);
+    
+    // Track service view when user selects a service
+    if (service && service !== t.search.allServiceTypes) {
+      import('@/lib/analytics-client').then(({ trackEvent }) => {
+        trackEvent('service_view', {
+          serviceType: service,
+        });
+      }).catch(() => {
+        // Silently fail if tracking fails
+      });
+    }
   };
   const handleBeneficiaryChange = (beneficiary: string) => {
     setSelectedBeneficiary(beneficiary);
     onFilter(selectedDistrict, selectedSector, selectedService, beneficiary, providerName);
+    
+    // Track beneficiary view when user selects a beneficiary
+    if (beneficiary && beneficiary !== t.search.allBeneficiaries) {
+      import('@/lib/analytics-client').then(({ trackEvent }) => {
+        trackEvent('beneficiary_view', {
+          beneficiaryType: beneficiary,
+        });
+      }).catch(() => {
+        // Silently fail if tracking fails
+      });
+    }
   };
   const handleProviderNameChange = (name: string) => {
     setProviderName(name);

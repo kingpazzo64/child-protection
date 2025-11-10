@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image'
-import Footer from '@/components/Footer'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -108,7 +107,6 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </div>
-      <Footer />
     </div>
   )
 }

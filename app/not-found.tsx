@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Footer from "@/components/Footer";
 
 const NotFound = () => {
 
@@ -14,7 +13,6 @@ const NotFound = () => {
           </Link>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

@@ -33,6 +33,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const navigationItems = [
     { title: "Dashboard", url: "/dashboard" },
     { title: "Service Providers", url: "/dashboard/directories" },
+    { title: "Analytics", url: "/dashboard/analytics", restricted: true },
     { title: "Reports", url: "/dashboard/reports", restricted: true },
     { title: "Service Types", url: "/dashboard/service-types", restricted: true },
     { title: "Beneficiary Types", url: "/dashboard/beneficiary-types", restricted: true },
@@ -49,19 +50,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
   return (
     <Sidebar
-      className={`transition-all duration-300 ${
-        state === "collapsed" ? "w-14" : "w-64"
-      }`}
       collapsible="icon"
+      variant="sidebar"
     >
       <SidebarContent className="bg-sidebar border-r border-sidebar-border">
-        <div className="p-4 border-b border-sidebar-border">
+        <div className="p-3 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
             {state !== "collapsed" && (
               <Image
                 src="/logo-color.png"
                 alt="NCDA Logo"
-                className="h-24 w-auto"
+                className="h-12 w-auto"
                 width={264}
                 height={64}
               />

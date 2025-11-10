@@ -7,6 +7,7 @@ import { NextRequest } from "next/server"
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import { User } from "@/types"
+import { trackLogin } from "./analytics"
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -51,6 +52,15 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id
         token.role = user.role
+        // Track login event
+        if (user.id) {
+          try {
+            await trackLogin(Number(user.id))
+          } catch (error) {
+            console.error('Failed to track login event:', error)
+            // Don't throw - login should still succeed even if analytics fails
+          }
+        }
       }
       return token
     },

@@ -1,6 +1,6 @@
 // app/api/public/directories/route.ts
 // Public endpoint that always returns all directories (no authentication required)
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
@@ -28,6 +28,8 @@ export async function GET() {
         },
       },
     })
+
+
     return NextResponse.json({ directories })
   } catch (err) {
     console.error('Error fetching public directories:', err)

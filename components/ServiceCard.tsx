@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Directory } from '@/types';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MapPin, Phone, Mail, Share2, Flag, ChevronDown, Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReportDialog from "./ReportDialog";
 import { toast } from "react-hot-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trackEvent } from "@/lib/analytics-client";
 
 interface ServiceCardProps {
   directory: Directory;
@@ -20,6 +21,18 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [hasTrackedView, setHasTrackedView] = useState(false);
+
+  // Track directory view when card is expanded for the first time
+  useEffect(() => {
+    if (isOpen && !hasTrackedView) {
+      trackEvent('directory_view', {
+        directoryId: directory.id,
+        directoryName: directory.nameOfOrganization,
+      });
+      setHasTrackedView(true);
+    }
+  }, [isOpen, hasTrackedView, directory.id, directory.nameOfOrganization]);
 
   function addCommas(input: number | null | undefined) {
     input = input ?? 0;

@@ -88,6 +88,27 @@ const [currentFilters, setCurrentFilters] = useState<{
         providerName
       });
 
+      // Track directory search event (only if filters are applied)
+      const hasFilters = 
+        district !== t.search.allDistricts ||
+        sector !== t.search.allSectors ||
+        service !== t.search.allServiceTypes ||
+        urgency !== t.search.allBeneficiaries ||
+        (providerName && providerName.trim() !== "");
+
+      if (hasFilters) {
+        import('@/lib/analytics-client').then(({ trackEvent }) => {
+          trackEvent('directory_search', {
+            district: district !== t.search.allDistricts ? district : undefined,
+            serviceType: service !== t.search.allServiceTypes ? service : undefined,
+            beneficiaryType: urgency !== t.search.allBeneficiaries ? urgency : undefined,
+            providerName: providerName && providerName.trim() !== "" ? providerName : undefined,
+          });
+        }).catch(() => {
+          // Silently fail if tracking fails
+        });
+      }
+
       let filtered = [...directories];
 
       if (district !== t.search.allDistricts) {
@@ -167,48 +188,44 @@ const [currentFilters, setCurrentFilters] = useState<{
                   {[...Array(6)].map((_, index) => (
                     <Card 
                       key={index} 
-                      className="border-l-4 border-l-primary shadow-lg animate-pulse"
-                      style={{
-                        animationDelay: `${index * 0.1}s`,
-                        animationDuration: '2s',
-                      }}
+                      className="border-l-4 border-l-primary shadow-lg"
                     >
-                      <CardHeader className="pb-3 bg-muted/30">
+                      <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <div className="flex-1 text-left space-y-3">
-                            <Skeleton className="h-6 w-3/4 bg-muted/80" />
+                            <Skeleton className="h-6 w-3/4" />
                             <div className="flex flex-wrap gap-2">
-                              <Skeleton className="h-5 w-20 rounded-full bg-muted/80" />
-                              <Skeleton className="h-5 w-24 rounded-full bg-muted/80" />
-                              <Skeleton className="h-5 w-16 rounded-full bg-muted/80" />
+                              <Skeleton className="h-5 w-20 rounded-full" />
+                              <Skeleton className="h-5 w-24 rounded-full" />
+                              <Skeleton className="h-5 w-16 rounded-full" />
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Skeleton className="h-5 w-12 rounded-full bg-muted/80" />
-                            <Skeleton className="h-4 w-4 rounded bg-muted/80" />
+                            <Skeleton className="h-5 w-12 rounded-full" />
+                            <Skeleton className="h-4 w-4 rounded" />
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-4 pt-4">
+                      <CardContent className="space-y-4">
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-24 bg-muted/80" />
+                          <Skeleton className="h-4 w-24" />
                           <div className="flex flex-wrap gap-2">
-                            <Skeleton className="h-5 w-28 rounded-full bg-muted/80" />
-                            <Skeleton className="h-5 w-32 rounded-full bg-muted/80" />
+                            <Skeleton className="h-5 w-28 rounded-full" />
+                            <Skeleton className="h-5 w-32 rounded-full" />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-20 bg-muted/80" />
-                          <Skeleton className="h-4 w-full bg-muted/80" />
-                          <Skeleton className="h-4 w-4/5 bg-muted/80" />
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-4/5" />
                         </div>
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-16 bg-muted/80" />
-                          <Skeleton className="h-4 w-32 bg-muted/80" />
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-4 w-32" />
                         </div>
                         <div className="flex justify-between items-center pt-3 border-t border-border">
-                          <Skeleton className="h-4 w-16 bg-muted/80" />
-                          <Skeleton className="h-4 w-32 bg-muted/80" />
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-4 w-32" />
                         </div>
                       </CardContent>
                     </Card>

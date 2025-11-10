@@ -11,21 +11,22 @@ datasource db {
 }
 
 model User {
-  id              Int         @id @default(autoincrement())
+  id              Int              @id @default(autoincrement())
   name            String
   phone           String
-  email           String      @unique
-  idNumber        String      @db.Char(16)
+  email           String           @unique
+  idNumber        String           @db.Char(16)
   role            Role
-  districtId      Int?        // Only for DISTRICT_CPO users
-  district        District?   @relation(fields: [districtId], references: [id])
+  districtId      Int? // Only for DISTRICT_CPO users
+  district        District?        @relation(fields: [districtId], references: [id])
   password        String?
-  emailVerified   Boolean     @default(false)
+  emailVerified   Boolean          @default(false)
   activationToken String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  disabled        Boolean     @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  disabled        Boolean          @default(false)
   directories     Directory[] // directories created by this user
+  analyticsEvents AnalyticsEvent[] // analytics events for this user
 
   @@map("users")
 }
@@ -112,7 +113,7 @@ model District {
   name        String              @unique
   sectors     Sector[]
   directories DirectoryLocation[]
-  users       User[]              // Users assigned to this district (DISTRICT_CPO)
+  users       User[] // Users assigned to this district (DISTRICT_CPO)
 }
 
 model Sector {
@@ -162,4 +163,18 @@ model Report {
   updatedAt     DateTime   @updatedAt
 
   @@map("reports")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  eventType String
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([eventType])
+  @@index([userId])
+  @@map("analytics_events")
 }

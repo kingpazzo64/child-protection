@@ -27,6 +27,7 @@ async function main() {
     // This prevents "Unique constraint failed on id" errors when reseeding
     await prisma.$executeRawUnsafe(`
       TRUNCATE TABLE 
+        "analytics_events",
         "reports",
         "DirectoryBeneficiary",
         "DirectoryService",

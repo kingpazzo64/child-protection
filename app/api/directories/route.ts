@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getToken } from 'next-auth/jwt'
+import { trackDirectoryCreated } from '@/lib/analytics'
 
 export async function GET(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
@@ -52,6 +53,7 @@ export async function GET(req: NextRequest) {
         createdBy: true,
       },
     })
+
     return NextResponse.json({ directories })
   } catch (err) {
     console.error(err)
@@ -153,6 +155,19 @@ export async function POST(req: NextRequest) {
         createdBy: true,
       },
     })
+
+    // Track directory creation event
+    try {
+      await trackDirectoryCreated(Number(token.id), directory.id, {
+        category,
+        serviceCount: serviceTypeIds?.length || 0,
+        beneficiaryCount: beneficiaryTypeIds?.length || 0,
+        locationCount: locations?.length || 0,
+      })
+    } catch (error) {
+      console.error('Failed to track directory creation:', error)
+      // Don't fail the request if analytics fails
+    }
 
     return NextResponse.json(directory)
   } catch (err) {
