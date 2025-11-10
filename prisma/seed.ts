@@ -16,57 +16,31 @@ interface LocationData { provinces: Province[] }
 interface Service { name: string }
 
 async function main() {
-  console.log('🗑️  Starting database truncation...')
-  
-  // Truncate all tables and reset sequences
-  // Using RESTART IDENTITY to reset auto-increment sequences to start from 1
-  // Using CASCADE to automatically handle dependent records and foreign keys
-  try {
-    // Truncate all tables in one command with RESTART IDENTITY and CASCADE
-    // RESTART IDENTITY is crucial - it resets all auto-increment sequences
-    // This prevents "Unique constraint failed on id" errors when reseeding
-    await prisma.$executeRawUnsafe(`
-      TRUNCATE TABLE 
-        "analytics_events",
-        "reports",
-        "DirectoryBeneficiary",
-        "DirectoryService",
-        "DirectoryLocation",
-        "Directory",
-        "users",
-        "Village",
-        "Cell",
-        "Sector",
-        "District",
-        "BeneficiaryType",
-        "ServiceType"
-      RESTART IDENTITY CASCADE
-    `)
-    
-    console.log('✅ All tables truncated and sequences reset successfully!')
-  } catch (error: any) {
-    console.error('❌ Error truncating tables:', error)
-    console.error('Error details:', error.message)
-    throw error
-  }
+  console.log('🌱 Starting seed...')
 
-  console.log('🌱 Starting fresh seed...')
-
-  // 1) Seed admin
+  // 1) Seed admin (idempotent - only create if doesn't exist)
   const adminEmail = 'admin@gmail.com'
-  const hashedPassword = await bcrypt.hash('admin@123', 10)
-  await prisma.user.create({
-    data: {
-      name: 'System Admin',
-      email: adminEmail,
-      phone: '0788123123',
-      idNumber: '1234567890123456',
-      role: 'ADMIN',
-      password: hashedPassword,
-      emailVerified: true,
-    },
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
   })
-  console.log(`✅ Admin user created: ${adminEmail} / admin@123`)
+  
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash('admin@123', 10)
+    await prisma.user.create({
+      data: {
+        name: 'System Admin',
+        email: adminEmail,
+        phone: '0788123123',
+        idNumber: '1234567890123456',
+        role: 'ADMIN',
+        password: hashedPassword,
+        emailVerified: true,
+      },
+    })
+    console.log(`✅ Admin user created: ${adminEmail} / admin@123`)
+  } else {
+    console.log(`ℹ️  Admin user already exists: ${adminEmail}`)
+  }
 
   // 2) Seed locations
   const locationPath = path.join(__dirname, 'data', 'locations.json')
@@ -75,60 +49,85 @@ async function main() {
 
   for (const province of locationData.provinces) {
     for (const district of province.districts) {
-      await prisma.district.create({
-        data: {
-          name: district.name,
-          sectors: {
-            create: district.sectors.map((sector) => ({
-              name: sector.name,
-              cells: {
-                create: sector.cells.map((cell) => ({
-                  name: cell.name,
-                  villages: {
-                    create: cell.villages.map((village) => ({
-                      name: village.name,
-                    })),
-                  },
-                })),
-              },
-            })),
-          },
-        },
+      // Check if district already exists (idempotent)
+      const existingDistrict = await prisma.district.findUnique({
+        where: { name: district.name },
       })
-      console.log(`📍 Created district: ${district.name}`)
+      
+      if (!existingDistrict) {
+        await prisma.district.create({
+          data: {
+            name: district.name,
+            sectors: {
+              create: district.sectors.map((sector) => ({
+                name: sector.name,
+                cells: {
+                  create: sector.cells.map((cell) => ({
+                    name: cell.name,
+                    villages: {
+                      create: cell.villages.map((village) => ({
+                        name: village.name,
+                      })),
+                    },
+                  })),
+                },
+              })),
+            },
+          },
+        })
+        console.log(`📍 Created district: ${district.name}`)
+      } else {
+        console.log(`ℹ️  District already exists: ${district.name}`)
+      }
     }
   }
 
   console.log('✅ Location seeding completed!')
 
-  // 3) Seed service types
+  // 3) Seed service types (idempotent - only create if doesn't exist)
   const servicePath = path.join(__dirname, 'data', 'serviceTypes.json')
   const rawService = fs.readFileSync(servicePath, 'utf-8')
   const serviceData = JSON.parse(rawService)
   
   for (const name of serviceData) {
-    await prisma.serviceType.create({
-      data: {
-        name
-      },
+    const existingService = await prisma.serviceType.findUnique({
+      where: { name },
     })
-    console.log(`📍 Created service type: ${name}`)
+    
+    if (!existingService) {
+      await prisma.serviceType.create({
+        data: {
+          name
+        },
+      })
+      console.log(`📍 Created service type: ${name}`)
+    } else {
+      console.log(`ℹ️  Service type already exists: ${name}`)
+    }
   }
 
   console.log('✅ Service types seeding completed!')
 
-  // 4) Seed beneficiary types
+  // 4) Seed beneficiary types (idempotent - only create if doesn't exist)
   const beneficiaryPath = path.join(__dirname, 'data', 'beneficiaryTypes.json')
   const rawBeneficiary = fs.readFileSync(beneficiaryPath, 'utf-8')
   const beneficiaryData = JSON.parse(rawBeneficiary)
   
   for (const name of beneficiaryData) {
-    await prisma.beneficiaryType.create({
-      data: {
-        name
-      },
+    const existingBeneficiary = await prisma.beneficiaryType.findUnique({
+      where: { name },
     })
-    console.log(`📍 Created beneficiary type: ${name}`)
+    
+    if (!existingBeneficiary) {
+      await prisma.beneficiaryType.create({
+        data: {
+          name
+        },
+      })
+      console.log(`📍 Created beneficiary type: ${name}`)
+    } else {
+      console.log(`ℹ️  Beneficiary type already exists: ${name}`)
+    }
   }
 
   console.log('✅ Beneficiary types seeding completed!')

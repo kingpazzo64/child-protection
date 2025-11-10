@@ -13,14 +13,18 @@ export async function logEvent(
   metadata?: Record<string, any>
 ): Promise<void> {
   try {
-    await prisma.analyticsEvent.create({
-      data: {
-        userId: userId ? userId : null,
-        eventType,
-        metadata: metadata || null,
-        timestamp: new Date(),
-      },
-    })
+    const data: any = {
+      userId: userId ?? null,
+      eventType,
+      timestamp: new Date(),
+    }
+    
+    // Only include metadata if it exists (Prisma Json fields should use undefined, not null)
+    if (metadata) {
+      data.metadata = metadata
+    }
+    
+    await prisma.analyticsEvent.create({ data })
   } catch (error) {
     // Log error but don't throw - analytics shouldn't break the app
     console.error('Failed to log analytics event:', error)
