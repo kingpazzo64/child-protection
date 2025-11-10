@@ -48,9 +48,15 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-4">{t.footer.availableServices}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
             {[
-              "Case Management", "General Child Protection", "Emergency Response",
-              "Legal Aid", "Psychosocial Support", "Disability Service",
-              "Rehabilitation", "Alternative Care", "Justice Services", "Education Services"
+              "Alternative Care",
+              "CP Case Management",
+              "CP Specialised Services",
+              "Education",
+              "GBV Case Management",
+              "Health Services",
+              "Legal Services",
+              "Psychosocial Support",
+              "Rehabilitation"
             ].map((service) => (
               <Button 
                 key={service} 
@@ -58,7 +64,7 @@ const Footer = () => {
                 className="justify-start p-1 h-auto text-white/80 hover:bg-white/10 hover:text-white"
                 style={{ color: 'hsla(var(--footer-foreground) / 0.8)' }}
               >
-                {service}
+                {t.serviceTypes[service] || service}
               </Button>
             ))}
           </div>
