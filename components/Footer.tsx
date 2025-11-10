@@ -83,8 +83,7 @@ const Footer = () => {
                 fontWeight: 700
               }}
             >
-              www.migeprof.gov.rw
-              {/* {t.footer.custodian} */}
+              {t.footer.custodian}
             </h3>
             {/* <p 
               className="leading-relaxed"

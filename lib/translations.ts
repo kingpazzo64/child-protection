@@ -160,7 +160,7 @@ export const translations: Record<Language, Translations> = {
       foundVia: 'Found via Child Protection Services Directory',
     },
     footer: {
-      custodian: 'Custodian',
+      custodian: 'www.ncda.gov.rw',
       custodianDescription: 'the national owner and coordinator of the Child Protection Services Directory.',
       copyright: '© 2025 National Child Development Agency (NCDA). All rights reserved.',
       serviceDistricts: 'Service Districts',
@@ -262,9 +262,9 @@ export const translations: Record<Language, Translations> = {
       foundVia: 'Byaboneka binyuze ku Rutonde rwa serivisi z\'Umutekano w\'Abana',
     },
     footer: {
-      custodian: 'Umukoresha',
+      custodian: 'www.ncda.gov.rw',
       custodianDescription: 'umukoresha w\'igihugu kandi n\'umuyobozi mukuru w\'urutonde rwa serivisi z\'umutekano w\'abana.',
-      copyright: '© 2025 Ikigo cy\'igihugu gishinzwe imikurire no kurengera umwana (NCDA). Uburenganzira bwose ni ubwayo.',
+      copyright: '© 2025 Ikigo cy\'igihugu gishinzwe imikurire no kurengera umwana (NCDA).',
       serviceDistricts: 'Uturere',
       availableServices: 'Serivisi zo kurengera abana',
     },
