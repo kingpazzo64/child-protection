@@ -45,41 +45,62 @@ async function main() {
 
   for (const province of locationData.provinces) {
     for (const district of province.districts) {
-      await prisma.district.create({
-        data: {
-          name: district.name,
-          sectors: {
-            create: district.sectors.map((sector) => ({
-              name: sector.name,
-              cells: {
-                create: sector.cells.map((cell) => ({
-                  name: cell.name,
-                  villages: {
-                    create: cell.villages.map((village) => ({
-                      name: village.name,
-                    })),
-                  },
-                })),
-              },
-            })),
-          },
-        },
+      // Check if district already exists
+      const existingDistrict = await prisma.district.findUnique({
+        where: { name: district.name },
       })
-      console.log(`📍 Created district: ${district.name}`)
+
+      if (!existingDistrict) {
+        await prisma.district.create({
+          data: {
+            name: district.name,
+            sectors: {
+              create: district.sectors.map((sector) => ({
+                name: sector.name,
+                cells: {
+                  create: sector.cells.map((cell) => ({
+                    name: cell.name,
+                    villages: {
+                      create: cell.villages.map((village) => ({
+                        name: village.name,
+                      })),
+                    },
+                  })),
+                },
+              })),
+            },
+          },
+        })
+        console.log(`📍 Created district: ${district.name}`)
+      } else {
+        console.log(`📍 District already exists: ${district.name}`)
+      }
     }
   }
 
   console.log('✅ Location seeding completed!')
 
+  // 3) Seed service types
   const servicePath = path.join(__dirname, 'data', 'serviceTypes.json')
   const rawService = fs.readFileSync(servicePath, 'utf-8')
   const serviceData = JSON.parse(rawService)
+  
   for (const name of serviceData) {
-    await prisma.serviceType.create({
-      data: {
-        name
-      },
+    // Check if service type already exists
+    const existingServiceType = await prisma.serviceType.findUnique({
+      where: { name },
     })
+
+    if (!existingServiceType) {
+      await prisma.serviceType.create({
+        data: {
+          name
+        },
+      })
+      console.log(`📍 Created service type: ${name}`)
+    } else {
+      console.log(`📍 Service type already exists: ${name}`)
+    }
   }
 
   console.log('✅ Service types seeding completed!')
