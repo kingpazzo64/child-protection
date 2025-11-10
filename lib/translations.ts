@@ -229,7 +229,7 @@ export const translations: Record<Language, Translations> = {
       typeOfBeneficiaries: 'Abafashwa',
       servicesIn: 'Serivisi mu',
       districtsWith: 'Uturere dufite',
-      title: 'URUTONDE RWA SERVISI Z\'UMUTEKANO W\'ABANA',
+      title: 'URUTONDE RWA SERIVISI ZO KURENGERA ABANA',
       availableServices: 'Serivisi Zibonekamo',
       availableDistricts: 'Uturere Zibonekamo',
       show: 'Erekana',
@@ -264,12 +264,12 @@ export const translations: Record<Language, Translations> = {
     footer: {
       custodian: 'Umukoresha',
       custodianDescription: 'umukoresha w\'igihugu kandi n\'umuyobozi mukuru w\'urutonde rwa serivisi z\'umutekano w\'abana.',
-      copyright: '© 2025 Ikigo cy\'igihugu cy\'iterambere ry\'abana (NCDA). Uburenganzira bwose ni ubwayo.',
+      copyright: '© 2025 Ikigo cy\'igihugu gishinzwe imikurire no kurengera umwana (NCDA). Uburenganzira bwose ni ubwayo.',
       serviceDistricts: 'Uturere dutangirwamo serivisi',
       availableServices: 'Serivisi Zibonekamo',
     },
     mainPage: {
-      title: 'Urutonde rwa serivisi z\'Umutekano w\'Abana',
+      title: 'Urutonde rwa serivisi zo kurengera abana',
       noServicesFound: 'Nta serivisi yabonetse',
       showingServices: 'Harimo',
       services: 'serivisi',

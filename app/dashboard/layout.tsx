@@ -5,6 +5,9 @@ import { getCurrentUser } from "@/lib/getCurrentUser.server"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()
+  
+  // Handle case where database connection fails - user will be null
+  // The page will still render, but user-specific features won't work
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
@@ -16,9 +19,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="flex flex-1 items-center gap-2">
               <h1 className="text-lg font-semibold">Child Protection Services Directory</h1>
             </div>
-            {user && (
+            {user ? (
               <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
                 <span>Welcome, {user.name}</span>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center gap-2 text-xs text-yellow-600 dark:text-yellow-400">
+                <span>Database connection issue</span>
               </div>
             )}
           </div>

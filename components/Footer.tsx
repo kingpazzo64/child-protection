@@ -83,9 +83,10 @@ const Footer = () => {
                 fontWeight: 700
               }}
             >
+              www.migeprof.gov.rw
               {t.footer.custodian}
             </h3>
-            <p 
+            {/* <p 
               className="leading-relaxed"
               style={{ 
                 color: 'hsl(var(--footer-foreground))',
@@ -99,7 +100,7 @@ const Footer = () => {
                 MIGEPROF/NCDA
               </strong>
               {' '}{t.footer.custodianDescription}
-            </p>
+            </p> */}
           </div>
         </div>
 
