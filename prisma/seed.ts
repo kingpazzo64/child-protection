@@ -18,25 +18,34 @@ interface Service { name: string }
 async function main() {
   console.log('🗑️  Starting database truncation...')
   
-  // Truncate all tables in correct order to respect foreign key constraints
-  // Using CASCADE to automatically handle dependent records
+  // Truncate all tables and reset sequences
+  // Using RESTART IDENTITY to reset auto-increment sequences to start from 1
+  // Using CASCADE to automatically handle dependent records and foreign keys
   try {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "reports" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "DirectoryBeneficiary" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "DirectoryService" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "DirectoryLocation" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "Directory" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "Village" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "Cell" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "Sector" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "District" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "BeneficiaryType" CASCADE')
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "ServiceType" CASCADE')
+    // Truncate all tables in one command with RESTART IDENTITY and CASCADE
+    // RESTART IDENTITY is crucial - it resets all auto-increment sequences
+    // This prevents "Unique constraint failed on id" errors when reseeding
+    await prisma.$executeRawUnsafe(`
+      TRUNCATE TABLE 
+        "reports",
+        "DirectoryBeneficiary",
+        "DirectoryService",
+        "DirectoryLocation",
+        "Directory",
+        "users",
+        "Village",
+        "Cell",
+        "Sector",
+        "District",
+        "BeneficiaryType",
+        "ServiceType"
+      RESTART IDENTITY CASCADE
+    `)
     
-    console.log('✅ All tables truncated successfully!')
-  } catch (error) {
+    console.log('✅ All tables truncated and sequences reset successfully!')
+  } catch (error: any) {
     console.error('❌ Error truncating tables:', error)
+    console.error('Error details:', error.message)
     throw error
   }
 
