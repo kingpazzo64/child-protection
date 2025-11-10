@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast'
 import { Dialog } from '@headlessui/react'
 import { Directory, District, ServiceType, BeneficiaryType, Sector, Cell, Village } from '@/types'
 import { Button } from "@/components/ui/button"
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface Props {
   initialData?: {
@@ -61,6 +62,7 @@ export default function DirectoryFormModal({
   modalOpen,
   userDistrictId,
 }: Props) {
+  const { t } = useLanguage()
   // Filter districts based on user role (DISTRICT_CPO can only see their district)
   const availableDistricts = userDistrictId
     ? districts.filter(d => d.id === userDistrictId)
@@ -318,12 +320,12 @@ export default function DirectoryFormModal({
 
             {/* Services */}
             <div className="col-span-2 border p-2 rounded">
-              <label className="font-semibold mb-2 block">Services:</label>
+              <label className="font-semibold mb-2 block">{t.serviceCard.services}:</label>
               <div className="gap-2">
-                {serviceTypes.map(t => (
-                  <label key={t.id} className="flex items-center gap-1">
-                    <input type="checkbox" name="serviceTypeIds" value={t.id} checked={form.serviceTypeIds.includes(t.id)} onChange={handleChange} />
-                    {t.name}
+                {serviceTypes.map(serviceType => (
+                  <label key={serviceType.id} className="flex items-center gap-1">
+                    <input type="checkbox" name="serviceTypeIds" value={serviceType.id} checked={form.serviceTypeIds.includes(serviceType.id)} onChange={handleChange} />
+                    {t.serviceTypes[serviceType.name] || serviceType.name}
                   </label>
                 ))}
               </div>
@@ -331,12 +333,12 @@ export default function DirectoryFormModal({
 
             {/* Beneficiaries */}
             <div className="col-span-2 border p-2 rounded">
-              <label className="font-semibold mb-2 block">Beneficiaries:</label>
+              <label className="font-semibold mb-2 block">{t.serviceCard.beneficiaries}:</label>
               <div className="gap-2">
                 {beneficiaryTypes.map(b => (
                   <label key={b.id} className="flex items-center gap-1">
                     <input type="checkbox" name="beneficiaryTypeIds" value={b.id} checked={form.beneficiaryTypeIds.includes(b.id)} onChange={handleChange} />
-                    {b.name}
+                    {t.beneficiaryTypes[b.name] || b.name}
                   </label>
                 ))}
               </div>

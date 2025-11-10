@@ -105,6 +105,31 @@ async function main() {
 
   console.log('✅ Service types seeding completed!')
 
+  // 4) Seed beneficiary types
+  const beneficiaryPath = path.join(__dirname, 'data', 'beneficiaryTypes.json')
+  const rawBeneficiary = fs.readFileSync(beneficiaryPath, 'utf-8')
+  const beneficiaryData = JSON.parse(rawBeneficiary)
+  
+  for (const name of beneficiaryData) {
+    // Check if beneficiary type already exists
+    const existingBeneficiaryType = await prisma.beneficiaryType.findUnique({
+      where: { name },
+    })
+
+    if (!existingBeneficiaryType) {
+      await prisma.beneficiaryType.create({
+        data: {
+          name
+        },
+      })
+      console.log(`📍 Created beneficiary type: ${name}`)
+    } else {
+      console.log(`📍 Beneficiary type already exists: ${name}`)
+    }
+  }
+
+  console.log('✅ Beneficiary types seeding completed!')
+
 }
 
 main()

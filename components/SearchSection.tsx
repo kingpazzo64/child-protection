@@ -220,7 +220,11 @@ const SearchSection = ({
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value={t.search.allServiceTypes}>{t.search.allServiceTypes}</SelectItem>
-                {serviceTypes.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+                {serviceTypes.map(s => (
+                  <SelectItem key={s.id} value={s.name}>
+                    {t.serviceTypes[s.name] || s.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -232,7 +236,11 @@ const SearchSection = ({
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value={t.search.allBeneficiaries}>{t.search.allBeneficiaries}</SelectItem>
-                {beneficiaryTypes.map(b => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}
+                {beneficiaryTypes.map(b => (
+                  <SelectItem key={b.id} value={b.name}>
+                    {t.beneficiaryTypes[b.name] || b.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -268,7 +276,7 @@ const SearchSection = ({
                       }}
                       className="px-2 py-1 text-xs bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors"
                     >
-                      {service.name}
+                      {t.serviceTypes[service.name] || service.name}
                     </button>
                   ))}
                 </div>

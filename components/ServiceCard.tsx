@@ -7,7 +7,6 @@ import { Directory } from '@/types';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MapPin, Phone, Mail, Share2, Flag, ChevronDown, Check } from "lucide-react";
 import { useState } from "react";
-import { urgencyLabels } from '@/types/urgencyLabels';
 import ReportDialog from "./ReportDialog";
 import { toast } from "react-hot-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -30,7 +29,7 @@ const ServiceCard = ({ directory }: ServiceCardProps) => {
   }
 
   const generateShareText = () => {
-    const services = directory.services?.map((s: any) => s.service.name).join(", ") || "N/A";
+    const services = directory.services?.map((s: any) => t.serviceTypes[s.service.name] || s.service.name).join(", ") || "N/A";
     const locations = directory.locations?.map((loc) => 
       `${loc.district.name} - ${loc.sector.name}`
     ).join("; ") || "N/A";
@@ -106,7 +105,7 @@ ${t.serviceCard.foundVia}`;
                       variant="secondary"
                       className="bg-primary/10 text-primary border-primary/20"
                     > 
-                      {s.service.name}
+                      {t.serviceTypes[s.service.name] || s.service.name}
                     </Badge>
                   ))}
                 </div> 
@@ -132,7 +131,7 @@ ${t.serviceCard.foundVia}`;
                 <div className="flex flex-wrap gap-2">
                   {directory.beneficiaries.map((b) => (
                     <Badge key={b.beneficiary.id} variant="outline" className="text-xs border-muted">
-                      {urgencyLabels[b.beneficiary.name] ?? b.beneficiary.name}
+                      {t.beneficiaryTypes[b.beneficiary.name] || b.beneficiary.name}
                     </Badge>
                   ))}
                 </div>

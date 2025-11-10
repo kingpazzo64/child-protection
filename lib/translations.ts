@@ -92,6 +92,16 @@ export interface Translations {
     edit: string;
     close: string;
   };
+  
+  // Service Types
+  serviceTypes: {
+    [key: string]: string;
+  };
+  
+  // Beneficiary Types
+  beneficiaryTypes: {
+    [key: string]: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -175,6 +185,27 @@ export const translations: Record<Language, Translations> = {
       edit: 'Edit',
       close: 'Close',
     },
+    serviceTypes: {
+      'Alternative Care': 'Alternative Care',
+      'CP Case Management': 'CP Case Management',
+      'CP Specialised Services': 'CP Specialised Services',
+      'Education': 'Education',
+      'GBV Case Management': 'GBV Case Management',
+      'Health Services': 'Health Services',
+      'Legal Services': 'Legal Services',
+      'Psychosocial Support': 'Psychosocial Support',
+      'Rehabilitation': 'Rehabilitation',
+    },
+    beneficiaryTypes: {
+      'GBV survivor (gender based violence, early pregnancies...)': 'GBV survivor (gender based violence, early pregnancies...)',
+      'Unaccompanied and separated children': 'Unaccompanied and separated children',
+      'Asylum seeker children': 'Asylum seeker children',
+      'Children in conflict with law': 'Children in conflict with law',
+      'Children with disabilities': 'Children with disabilities',
+      'Refugee children': 'Refugee children',
+      'Street-connected children': 'Street-connected children',
+      'Survivor of CP violence/abuse (non gender based violence)': 'Survivor of CP violence/abuse (non gender based violence)',
+    },
   },
   rw: {
     header: {
@@ -183,24 +214,24 @@ export const translations: Record<Language, Translations> = {
     },
     search: {
       searchPlaceholder: 'Shakisha ku izina, imeyili, cyangwa telefoni...',
-      allDistricts: 'Intara Zose',
-      allSectors: 'Uturere Twose',
+      allDistricts: 'Uturere twose',
+      allSectors: 'Imirenge Twose',
       allServiceTypes: 'Ubwoko bwose bw\'inshingano',
       allBeneficiaries: 'Abatsindiye Bose',
       providerName: 'Izina ry\'Umuyobora',
-      providerNamePlaceholder: 'Shakisha ku izina ry\'umuyobora...',
-      clearFilters: 'Siba Amashyirahamwe',
+      providerNamePlaceholder: 'Shakisha izina ry\'utanga serivisi...',
+      clearFilters: 'Siba byose',
       filterBy: 'Shyirahamwe',
       expandSearch: 'Kongeraho Gushaka',
-      district: 'Intara',
-      sector: 'Akarere',
-      serviceType: 'Ubwoko bw\'Inshingano',
+      district: 'Akarere',
+      sector: 'Umurenge',
+      serviceType: 'Ubwoko bwa serivisi',
       typeOfBeneficiaries: 'Ubwoko bw\'Abatsindiye',
       servicesIn: 'Inshingano mu',
-      districtsWith: 'Intara zifite',
-      title: 'URUTONDE RW\'INSHINGANO Z\'UMUTEKANO W\'ABANA',
-      availableServices: 'Inshingano Ziboneka',
-      availableDistricts: 'Intara Ziboneka',
+      districtsWith: 'Uturere dufite',
+      title: 'URUTONDE RWA SERVISI Z\'UMUTEKANO W\'ABANA',
+      availableServices: 'Serivisi Zibonekamo',
+      availableDistricts: 'Uturere Zibonekamo',
       show: 'Erekana',
       hide: 'Hisha',
       expand: 'Kongera',
@@ -216,35 +247,35 @@ export const translations: Record<Language, Translations> = {
       phone: 'Telefoni',
       email: 'I Meyili',
       website: 'Urubuga',
-      share: 'Gawana',
+      share: 'Sangiza',
       copied: 'Wakiriye!',
       reportIncorrect: 'Tangaza Ikosa',
-      paid: 'YISHYURA',
-      free: 'CYUBAKWA',
+      paid: 'IRISHYURWA',
+      free: 'UBUNTU',
       viewDetails: 'Reba Ibisobanuro',
       hideDetails: 'Hisha Ibisobanuro',
-      otherServices: 'Inshingano Zindi:',
+      otherServices: 'Izindi serivisi:',
       shareSuccess: 'Wagabiye neza!',
       shareError: 'Ntago wagabije. Ongera ugerageze.',
       linkCopied: 'Ihuza ryakiriwe mu clipboard!',
-      shareTitle: 'Inshingano z\'Umutekano w\'Abana',
-      foundVia: 'Byaboneka binyuze ku Rutonde rw\'Inshingano z\'Umutekano w\'Abana',
+      shareTitle: 'Serivisi z\'Umutekano w\'Abana',
+      foundVia: 'Byaboneka binyuze ku Rutonde rwa serivisi z\'Umutekano w\'Abana',
     },
     footer: {
       custodian: 'Umukoresha',
       custodianDescription: 'MIGEPROF/NCDA ni ukoresha w\'igihugu kandi n\'umuyobozi mukuru w\'Urutonde rw\'Inshingano z\'Umutekano w\'Abana.',
-      copyright: '© 2024 Ikigo cy\'Igihugu cy\'Iterambere ry\'Abana (NCDA). Uburenganzira bwose ni ubwayo.',
-      serviceDistricts: 'Intara z\'Inshingano',
-      availableServices: 'Inshingano Ziboneka',
+      copyright: '© 2025 Ikigo cy\'Igihugu cy\'Iterambere ry\'Abana (NCDA). Uburenganzira bwose ni ubwayo.',
+      serviceDistricts: 'Uturere dutangirwamo serivisi',
+      availableServices: 'Serivisi Zibonekamo',
     },
     mainPage: {
-      title: 'Urutonde rw\'Inshingano z\'Umutekano w\'Abana',
-      noServicesFound: 'Ntago inshingano zaboneka',
-      showingServices: 'Erekana',
+      title: 'Urutonde rwa serivisi z\'Umutekano w\'Abana',
+      noServicesFound: 'Nta serivisi yabonetse',
+      showingServices: 'Harimo',
       services: 'inshingano',
-      tryAdjustingSearch: 'Gerageza guhindura ibisabwa cyangwa siba amashyirahamwe kugira ngo ubone inshingano zose ziboneka.',
-      noServicesAvailable: 'Ntago inshingano z\'umutekano w\'abana ziboneka ubu.',
-      loading: 'Kwiyongera inshingano...',
+      tryAdjustingSearch: 'Gerageza guhindura ibisabwa cyangwa siba byose kugira ngo ubone serivisi zose ziboneka.',
+      noServicesAvailable: 'Nta serivisi z\'umutekano w\'abana ziboneka ubu.',
+      loading: 'Mutegereze serivisi...',
     },
     common: {
       loading: 'Kwiyongera...',
@@ -255,6 +286,27 @@ export const translations: Record<Language, Translations> = {
       delete: 'Siba',
       edit: 'Hindura',
       close: 'Funga',
+    },
+    serviceTypes: {
+      'Alternative Care': 'Ubundi buryo bwo kurera abana',
+      'CP Case Management': 'Gukurikirana ibibazo by\'abana bahohotewe',
+      'CP Specialised Services': 'Serivisi zihariye ku bana bafite ibibazo',
+      'Education': 'Uburezi',
+      'GBV Case Management': 'Gukurikirana ibibazo by\'abana bakorewe ihohoterwa rishingiye ku gitsina',
+      'Health Services': 'Serivisi z\'ubuvuzi',
+      'Legal Services': 'Serivisi z\'amategeko',
+      'Psychosocial Support': 'Ubufasha bwo mu mitekerereze n\'imibanire',
+      'Rehabilitation': 'Gusubiza abana mu buzima busanzwe',
+    },
+    beneficiaryTypes: {
+      'GBV survivor (gender based violence, early pregnancies...)': 'Uwakorewe ihohoterwa rishingiye ku gitsina (harimo guterwa inda imburagihe n\'ibindi)',
+      'Unaccompanied and separated children': 'Abana batari kumwe n\'ababyeyi cyangwa batandukanye n\'imiryango yabo',
+      'Asylum seeker children': 'Abana bashaka ubuhungiro',
+      'Children in conflict with law': 'Abana bafitanye ibibazo n\'amategeko',
+      'Children with disabilities': 'Abana bafite ubumuga',
+      'Refugee children': 'Abana b\'impunzi',
+      'Street-connected children': 'Abana baba ku muhanda',
+      'Survivor of CP violence/abuse (non gender based violence)': 'Uwakorewe ihohoterwa rikorerwa abana ritari irishingiye ku gitsina',
     },
   },
 };
